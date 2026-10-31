@@ -1,11 +1,22 @@
 using API.StoredProcedureToLinq;
+using API.Service.ExcelExport;
 using Backend.Controllers.Report;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 
 namespace Backend.Tests;
 
 public sealed class ImportLicenceTurndownValidationTests
 {
+    [Theory]
+    [InlineData(typeof(ImportLicenceTurndownReportController))]
+    [InlineData(typeof(BorderImportLicenceTurndownReportController))]
+    public void Corrected_reports_do_not_reuse_cached_exports_with_the_old_row_rules(Type controllerType)
+    {
+        var version = controllerType.GetCustomAttribute<ExcelFormatVersionAttribute>()?.Version ?? 1;
+        Assert.True(version > 1, "Changing row eligibility must invalidate old cached Excel exports.");
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

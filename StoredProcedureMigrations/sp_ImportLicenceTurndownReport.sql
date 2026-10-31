@@ -1,6 +1,7 @@
--- Deploy these three new procedures before deploying the report API.
--- MessageHistory also stores reopen events. Cleared remarks cannot identify
--- historical reopens; keep those dated records rather than silently losing history.
+-- Deploy these procedures before deploying the report API.
+-- MessageHistory also stores reopen events and remarks cleared after checking.
+-- Only currently rejected applications and events with recorded reasons belong
+-- in this report; excluded history must not contribute to dates or counts.
 CREATE OR ALTER PROCEDURE dbo.sp_ImportLicenceTurndownReport_pagination
     @FormType nvarchar(50),
     @FromDate datetime,
@@ -31,9 +32,17 @@ BEGIN
 
     SELECT DISTINCT h.TransactionId INTO #Candidates
     FROM dbo.MessageHistory h
+    CROSS APPLY (VALUES (NULLIF(LTRIM(RTRIM(
+        REPLACE(REPLACE(REPLACE(REPLACE(h.Remark, NCHAR(9), N' '), NCHAR(10), N' '), NCHAR(13), N' '), NCHAR(160), N' ')
+    )), N''))) AS reason(RemarkText)
     WHERE h.FormType = @FormType
       AND h.CreatedDate >= CONVERT(date, @FromDate) AND h.CreatedDate < @endDate
-      AND (h.Remark IS NULL OR LTRIM(RTRIM(h.Remark)) <> N'Re Open');
+      AND reason.RemarkText IS NOT NULL AND reason.RemarkText <> N'Re Open'
+      AND ((@FormType = N'Import Licence' AND EXISTS (
+            SELECT 1 FROM dbo.ImportLicence l WHERE l.Id = h.TransactionId AND l.Status = N'Reject'))
+        OR (@FormType = N'Border Import Licence' AND EXISTS (
+            SELECT 1 FROM dbo.BorderImportLicence l WHERE l.Id = h.TransactionId AND l.Status = N'Reject')))
+    OPTION (RECOMPILE);
     CREATE UNIQUE CLUSTERED INDEX IX_Candidates ON #Candidates(TransactionId);
 
     -- Date filters determine membership, not the count or latest event.
@@ -43,8 +52,11 @@ BEGIN
     INTO #History
     FROM dbo.MessageHistory h
     INNER JOIN #Candidates c ON c.TransactionId = h.TransactionId
+    CROSS APPLY (VALUES (NULLIF(LTRIM(RTRIM(
+        REPLACE(REPLACE(REPLACE(REPLACE(h.Remark, NCHAR(9), N' '), NCHAR(10), N' '), NCHAR(13), N' '), NCHAR(160), N' ')
+    )), N''))) AS reason(RemarkText)
     WHERE h.FormType = @FormType
-      AND (h.Remark IS NULL OR LTRIM(RTRIM(h.Remark)) <> N'Re Open');
+      AND reason.RemarkText IS NOT NULL AND reason.RemarkText <> N'Re Open';
 
     DECLARE @columns TABLE (Name sysname PRIMARY KEY);
     INSERT @columns VALUES (N'SectionCode'),(N'Status'),(N'ApplyType'),(N'ApplicationNo'),
@@ -71,7 +83,7 @@ BEGIN
         firstItem.HSCode, firstItem.Description AS AdditionalDescription, currency.Code AS Currency,
         ISNULL(total.Amount, CONVERT(decimal(38,4), 0)) AS Amount,
         h.TurndownCount, h.CreatedDate AS TurndownDate,
-        COALESCE(NULLIF(LTRIM(RTRIM(h.Remark)), N''''), N''Remark unavailable'') AS TurndownRemark
+        LTRIM(RTRIM(h.Remark)) AS TurndownRemark
     INTO #Report
     FROM dbo.' + QUOTENAME(@licence) + N' l
     INNER JOIN #History h ON h.TransactionId = l.Id AND h.rn = 1
@@ -83,7 +95,8 @@ BEGIN
     LEFT JOIN dbo.Currency currency ON currency.Id = firstItem.CurrencyId
     OUTER APPLY (SELECT SUM(i.Amount) AS Amount FROM dbo.' + QUOTENAME(@item) + N' i
         WHERE i.' + QUOTENAME(@foreignKey) + N' = l.Id) total
-    WHERE (@ExportImportSectionId = 0 OR l.ExportImportSectionId = @ExportImportSectionId)
+    WHERE l.Status = N''Reject''
+      AND (@ExportImportSectionId = 0 OR l.ExportImportSectionId = @ExportImportSectionId)
       AND (@CompanyRegistrationNo = N'''' OR p.CompanyRegistrationNo = @CompanyRegistrationNo)
       AND (@CompanyName = N'''' OR CHARINDEX(@CompanyName, p.CompanyName) > 0)
       AND (@ApplyType = N'''' OR l.ApplyType = @ApplyType)
@@ -109,11 +122,19 @@ BEGIN
     SET NOCOUNT ON;
     IF @FormType NOT IN (N'Import Licence', N'Border Import Licence') OR @FormType IS NULL
         THROW 50001, 'Unsupported import licence form type.', 1;
-    SELECT RTRIM(Id) AS Id, CreatedDate, Remark
-    FROM dbo.MessageHistory
-    WHERE TransactionId = @TransactionId AND FormType = @FormType
-      AND (Remark IS NULL OR LTRIM(RTRIM(Remark)) <> N'Re Open')
-    ORDER BY CreatedDate DESC, Id DESC;
+    SELECT RTRIM(h.Id) AS Id, h.CreatedDate, h.Remark
+    FROM dbo.MessageHistory h
+    CROSS APPLY (VALUES (NULLIF(LTRIM(RTRIM(
+        REPLACE(REPLACE(REPLACE(REPLACE(h.Remark, NCHAR(9), N' '), NCHAR(10), N' '), NCHAR(13), N' '), NCHAR(160), N' ')
+    )), N''))) AS reason(RemarkText)
+    WHERE h.TransactionId = @TransactionId AND h.FormType = @FormType
+      AND reason.RemarkText IS NOT NULL AND reason.RemarkText <> N'Re Open'
+      AND ((@FormType = N'Import Licence' AND EXISTS (
+            SELECT 1 FROM dbo.ImportLicence l WHERE l.Id = h.TransactionId AND l.Status = N'Reject'))
+        OR (@FormType = N'Border Import Licence' AND EXISTS (
+            SELECT 1 FROM dbo.BorderImportLicence l WHERE l.Id = h.TransactionId AND l.Status = N'Reject')))
+    ORDER BY h.CreatedDate DESC, h.Id DESC
+    OPTION (RECOMPILE);
 END;
 GO
 

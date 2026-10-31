@@ -96,6 +96,7 @@ public abstract class LicenceTurndownReportControllerBase : ControllerBase, IStr
     }
 }
 
+[ExcelFormatVersion(2)]
 public sealed class ImportLicenceTurndownReportController : LicenceTurndownReportControllerBase
 {
     public ImportLicenceTurndownReportController(TradeNetDbContext context, IExcelExportJobService excelExportJobs)
