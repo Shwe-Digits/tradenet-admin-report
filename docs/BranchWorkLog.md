@@ -8,7 +8,9 @@ merge/deployment state. Add the newest assignment first.
 - Assignment date: 2026-10-31.
 - Base branch: `main`; base commit: `d6963fc`.
 - Fix commit: `708887f`.
-- Status: Implemented and committed locally. Not pushed, merged, or deployed.
+- Status: Deployed to production with user approval on 2026-10-31 from
+  `70dae93` (backend version `1.0.0+70dae93`). Branch remains local; not pushed
+  or merged into `main`.
 
 ### Scope and verification
 
@@ -44,8 +46,27 @@ merge/deployment state. Add the newest assignment first.
   `StoredProcedureMigrations/sp_ImportLicenceTurndownReport.sql` before deploying
   the backend/frontend. The Apply Type procedure is unchanged. Running
   `deploy.bat` alone does not install these SQL changes.
-- No live procedure or application deployment was performed for this fix.
-  Historical cleared remarks cannot be recovered; counts now represent the
+- Updated both procedures in one transaction on production `TradeNetDB` using
+  Windows authentication, then deployed the exact reviewed branch with
+  `deploy.ps1 -NoGit`. The Apply Type procedure, source records, and permissions
+  were not changed. Application-login EXECUTE permissions were verified.
+- Rollback backup: `.deploy/pre-valid-remarks-deploy-20261031-115039/` contains
+  the previous backend/frontend and `rollback-procedures.sql`. Uploaded images
+  were excluded from the site backup. Live backend settings and frontend
+  `web.config` hashes match their pre-deployment backups.
+- Live checks passed: API health and public frontend HTTP 200; deployed API.dll,
+  public frontend bundle `/assets/index-DUtLZXjn.js`, and share files match the
+  built outputs. Both report routes return HTTP 401 without authentication.
+  Authenticated production browser testing was not performed.
+- Installed procedures executed successfully with the application SQL login.
+  October 1-2 returned 12 oversea and zero border rows, all currently rejected
+  with valid remarks. Positive samples from both families matched their history
+  counts, latest dates, and remarks; approved-application histories were excluded.
+- Deployment log: `.deploy/valid-remarks-deployment-20261031.log`; live SQL and
+  site verification logs use the `valid-remarks-live-*-verification.log` names.
+  Build completed with existing Node engine, dependency audit, and bundle-size
+  warnings. No dependency changes were made.
+- Historical cleared remarks cannot be recovered; counts now represent the
   remaining valid, recorded turndown events.
 - The temporary browser-test server was stopped after verification. Existing
   unrelated README changes and generated graph artifacts remain uncommitted.
