@@ -3,6 +3,53 @@
 This journal records which assignment was implemented on each branch and its actual
 merge/deployment state. Add the newest assignment first.
 
+## `fix/import-turndown-valid-remarks`
+
+- Assignment date: 2026-10-31.
+- Base branch: `main`; base commit: `d6963fc`.
+- Fix commit: `708887f`.
+- Status: Implemented and committed locally. Not pushed, merged, or deployed.
+
+### Scope and verification
+
+- Corrected both Import Licence Turndown reports to include only applications
+  currently at `Status = 'Reject'`. NULL, empty, whitespace-only, and identifiable
+  `Re Open` remarks are excluded before date qualification, latest-event
+  selection, counts, history details, and Excel generation. Whitespace checks
+  cover spaces, tabs, line breaks, and non-breaking spaces.
+- The custom Turndown reports have no matching legacy RDLC/view. Report columns,
+  filter controls, and Apply Type lookup values were preserved. Legacy API code
+  confirms rejection sets `Reject` and writes a history remark; later checking
+  can clear history remarks.
+- Replaced the stale missing-remark explanation with the valid-event counting
+  rule. Existing wrapping, Show more/Show less, and inline expansion remain.
+- Bumped both report controllers' Excel format versions to 2 so cached exports
+  generated under the old eligibility rules cannot be reused after rollout.
+- Regression run reproduced 11 failures before the fix. All 24 focused backend
+  SQL, validation, cache-version, and export-contract tests passed afterward.
+  Tests use disposable LocalDB databases. Both updated browser tests and the
+  frontend production build passed (existing bundle-size warning only).
+- Read-only production-data inspection for 2026-10-01 through 2026-10-02 found
+  historical events on 311 now-approved oversea applications and 40 now-approved
+  border applications, confirming the senior's concern. Running the corrected
+  procedure body without installing it returned 12 oversea applications and
+  zero border applications for that range, with no missing remarks or
+  non-rejected rows (~1.8s / ~0.6s). These counts reflect current statuses at the
+  time of inspection, not historical status snapshots.
+
+### Rollout notes
+
+- Update `dbo.sp_ImportLicenceTurndownReport_pagination` and
+  `dbo.sp_ImportLicenceTurndownHistory` from
+  `StoredProcedureMigrations/sp_ImportLicenceTurndownReport.sql` before deploying
+  the backend/frontend. The Apply Type procedure is unchanged. Running
+  `deploy.bat` alone does not install these SQL changes.
+- No live procedure or application deployment was performed for this fix.
+  Historical cleared remarks cannot be recovered; counts now represent the
+  remaining valid, recorded turndown events.
+- The temporary browser-test server was stopped after verification. Existing
+  unrelated README changes and generated graph artifacts remain uncommitted.
+
 ## `feature/import-licence-turndown-reports`
 
 - Assignment date: 2026-10-29
