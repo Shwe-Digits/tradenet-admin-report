@@ -14,7 +14,7 @@ public sealed class ImportLicenceTurndownValidationTests
     public void Corrected_reports_do_not_reuse_cached_exports_with_the_old_row_rules(Type controllerType)
     {
         var version = controllerType.GetCustomAttribute<ExcelFormatVersionAttribute>()?.Version ?? 1;
-        Assert.True(version > 1, "Changing row eligibility must invalidate old cached Excel exports.");
+        Assert.True(version > 2, "Changing row eligibility must invalidate old cached Excel exports.");
     }
 
     [Theory]

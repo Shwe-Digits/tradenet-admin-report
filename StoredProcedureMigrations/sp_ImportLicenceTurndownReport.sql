@@ -1,7 +1,7 @@
 -- Deploy these procedures before deploying the report API.
 -- MessageHistory also stores reopen events and remarks cleared after checking.
--- Only currently rejected applications and events with recorded reasons belong
--- in this report; excluded history must not contribute to dates or counts.
+-- Only events with recorded reasons belong in this report; excluded history
+-- must not contribute to dates or counts. Later status changes retain history.
 CREATE OR ALTER PROCEDURE dbo.sp_ImportLicenceTurndownReport_pagination
     @FormType nvarchar(50),
     @FromDate datetime,
@@ -38,10 +38,6 @@ BEGIN
     WHERE h.FormType = @FormType
       AND h.CreatedDate >= CONVERT(date, @FromDate) AND h.CreatedDate < @endDate
       AND reason.RemarkText IS NOT NULL AND reason.RemarkText <> N'Re Open'
-      AND ((@FormType = N'Import Licence' AND EXISTS (
-            SELECT 1 FROM dbo.ImportLicence l WHERE l.Id = h.TransactionId AND l.Status = N'Reject'))
-        OR (@FormType = N'Border Import Licence' AND EXISTS (
-            SELECT 1 FROM dbo.BorderImportLicence l WHERE l.Id = h.TransactionId AND l.Status = N'Reject')))
     OPTION (RECOMPILE);
     CREATE UNIQUE CLUSTERED INDEX IX_Candidates ON #Candidates(TransactionId);
 
@@ -95,8 +91,7 @@ BEGIN
     LEFT JOIN dbo.Currency currency ON currency.Id = firstItem.CurrencyId
     OUTER APPLY (SELECT SUM(i.Amount) AS Amount FROM dbo.' + QUOTENAME(@item) + N' i
         WHERE i.' + QUOTENAME(@foreignKey) + N' = l.Id) total
-    WHERE l.Status = N''Reject''
-      AND (@ExportImportSectionId = 0 OR l.ExportImportSectionId = @ExportImportSectionId)
+    WHERE (@ExportImportSectionId = 0 OR l.ExportImportSectionId = @ExportImportSectionId)
       AND (@CompanyRegistrationNo = N'''' OR p.CompanyRegistrationNo = @CompanyRegistrationNo)
       AND (@CompanyName = N'''' OR CHARINDEX(@CompanyName, p.CompanyName) > 0)
       AND (@ApplyType = N'''' OR l.ApplyType = @ApplyType)
@@ -129,10 +124,6 @@ BEGIN
     )), N''))) AS reason(RemarkText)
     WHERE h.TransactionId = @TransactionId AND h.FormType = @FormType
       AND reason.RemarkText IS NOT NULL AND reason.RemarkText <> N'Re Open'
-      AND ((@FormType = N'Import Licence' AND EXISTS (
-            SELECT 1 FROM dbo.ImportLicence l WHERE l.Id = h.TransactionId AND l.Status = N'Reject'))
-        OR (@FormType = N'Border Import Licence' AND EXISTS (
-            SELECT 1 FROM dbo.BorderImportLicence l WHERE l.Id = h.TransactionId AND l.Status = N'Reject')))
     ORDER BY h.CreatedDate DESC, h.Id DESC
     OPTION (RECOMPILE);
 END;

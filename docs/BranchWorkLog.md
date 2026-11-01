@@ -14,6 +14,23 @@ merge/deployment state. Add the newest assignment first.
 
 ### Scope and verification
 
+- Scope correction requested on 2026-10-31 after the deployed current-status
+  restriction reduced the October border report to three rows: removed the
+  `Status = 'Reject'` restriction from date qualification, main rows, and history.
+  Retained NULL/blank/whitespace and `Re Open` remark exclusion consistently.
+  Recorded history remains eligible after the application's status changes.
+  Both Excel format versions are now 3 to prevent reuse of restrictive exports.
+  Correction deployment authorized on 2026-11-01; rollout pending. Only the two
+  procedures and backend cache versions require deployment; frontend unchanged.
+- Correction verification: six regression failures reproduced before changing
+  SQL/cache versions; all 24 focused backend tests passed afterward. A read-only
+  execution of the corrected SQL body against October 1-31 production border
+  data returned 906 rows with zero missing remarks, without altering procedures.
+  Logs: `artifacts/turndown-status-scope-red.log` and
+  `artifacts/turndown-status-scope-green.log`. No frontend changes were needed.
+- The following notes describe the earlier deployed revision, before that
+  local scope correction.
+
 - Corrected both Import Licence Turndown reports to include only applications
   currently at `Status = 'Reject'`. NULL, empty, whitespace-only, and identifiable
   `Re Open` remarks are excluded before date qualification, latest-event

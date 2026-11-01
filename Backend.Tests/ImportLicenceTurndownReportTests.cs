@@ -182,7 +182,7 @@ public sealed class ImportLicenceTurndownReportTests : IAsyncLifetime
     [InlineData("Border Import Licence", "Approved")]
     [InlineData("Import Licence", "Pending")]
     [InlineData("Border Import Licence", "Payment Ready")]
-    public async Task Non_rejected_applications_are_excluded_from_grid_history_and_export(string formType, string status)
+    public async Task Recorded_turndowns_remain_in_grid_history_and_export_after_status_changes(string formType, string status)
     {
         await using var db = CreateDb();
         var table = formType == "Import Licence" ? "ImportLicence" : "BorderImportLicence";
@@ -191,9 +191,15 @@ public sealed class ImportLicenceTurndownReportTests : IAsyncLifetime
         {
             FromDate = new DateTime(2026, 10, 1), ToDate = new DateTime(2026, 10, 1), IncludeTotalCount = true
         };
-        Assert.Empty(await sp_ImportLicenceTurndownReport.Query(db, formType, request).ToListAsync());
-        Assert.Empty(await sp_ImportLicenceTurndownReport.Query(db, formType, request, export: true).ToListAsync());
-        Assert.Empty(await sp_ImportLicenceTurndownReport.History(db, formType, "application-1").ToListAsync());
+        var row = Assert.Single(await sp_ImportLicenceTurndownReport.Query(db, formType, request).ToListAsync());
+        var exported = Assert.Single(await sp_ImportLicenceTurndownReport.Query(db, formType, request, export: true).ToListAsync());
+        var history = await sp_ImportLicenceTurndownReport.History(db, formType, "application-1").ToListAsync();
+        Assert.NotEmpty(history);
+        Assert.All(history, item => Assert.False(string.IsNullOrWhiteSpace(item.Remark)));
+        Assert.Equal(history.Count, row.TurndownCount);
+        Assert.Equal(history[0].Remark.Trim(), row.TurndownRemark);
+        Assert.Equal(row.TurndownCount, exported.TurndownCount);
+        Assert.Equal(row.TurndownRemark, exported.TurndownRemark);
     }
 
     [Theory]
