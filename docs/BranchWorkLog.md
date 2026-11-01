@@ -8,9 +8,10 @@ merge/deployment state. Add the newest assignment first.
 - Assignment date: 2026-10-31.
 - Base branch: `main`; base commit: `d6963fc`.
 - Fix commit: `708887f`.
-- Status: Deployed to production with user approval on 2026-10-31 from
-  `70dae93` (backend version `1.0.0+70dae93`). Branch remains local; not pushed
-  or merged into `main`.
+- Status: Scope correction deployed to production with user approval on
+  2026-11-01 from `173a727` (backend version `1.0.0+173a727`), replacing the
+  restrictive `70dae93` deployment of 2026-10-31. Branch remains local;
+  not pushed or merged into `main`.
 
 ### Scope and verification
 
@@ -20,14 +21,29 @@ merge/deployment state. Add the newest assignment first.
   Retained NULL/blank/whitespace and `Re Open` remark exclusion consistently.
   Recorded history remains eligible after the application's status changes.
   Both Excel format versions are now 3 to prevent reuse of restrictive exports.
-  Correction deployment authorized on 2026-11-01; rollout pending. Only the two
-  procedures and backend cache versions require deployment; frontend unchanged.
+  Correction committed as `173a727` and deployed on 2026-11-01. Updated only the
+  two procedures and backend cache versions; frontend unchanged.
 - Correction verification: six regression failures reproduced before changing
   SQL/cache versions; all 24 focused backend tests passed afterward. A read-only
   execution of the corrected SQL body against October 1-31 production border
   data returned 906 rows with zero missing remarks, without altering procedures.
   Logs: `artifacts/turndown-status-scope-red.log` and
   `artifacts/turndown-status-scope-green.log`. No frontend changes were needed.
+- Correction rollout: both SQL definitions updated in one transaction before
+  running `deploy.ps1 -NoGit -NoFrontend`. Source data, Apply Types, and SQL
+  permissions were unchanged. Backup:
+  `.deploy/pre-turndown-scope-deploy-20261101-112737/`, including site files and
+  `rollback-procedures.sql` (uploaded images excluded).
+- Live correction verification passed with the application SQL login: October
+  reports returned 2,949 oversea and 906 border rows with zero missing remarks.
+  Pending and Reject samples in both families matched history counts and latest
+  dates/remarks. Both procedure EXECUTE permissions remain present.
+- API health and public site returned HTTP 200; API.dll matches the release;
+  backend settings and frontend web.config match the backup. The unchanged public
+  bundle matches the existing built asset. Both report routes return HTTP 401
+  without login; authenticated production browser testing was not performed.
+  Logs: `.deploy/turndown-scope-deployment-20261101.log` and
+  `.deploy/turndown-scope-live-{sql,site}-verification.log`.
 - The following notes describe the earlier deployed revision, before that
   local scope correction.
 
