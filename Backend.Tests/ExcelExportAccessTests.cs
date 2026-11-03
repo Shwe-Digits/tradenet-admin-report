@@ -7,6 +7,20 @@ namespace Backend.Tests;
 
 public class ExcelExportAccessTests
 {
+    [Theory]
+    [InlineData("ImportLicencePendingReport")]
+    [InlineData("BorderImportLicencePendingReport")]
+    [InlineData("MPUReport")]
+    [InlineData("OGARecommendationHistoryReport")]
+    public void Ict_report_user_can_export_all_reports_but_only_access_their_own_jobs(string reportKey)
+    {
+        var access = ReportAccessPolicy.Create("ICT Report", Array.Empty<UserDetail>());
+        var job = new ExcelExportJob { RequestedByUserName = "42", ReportKey = reportKey };
+
+        Assert.True(ExcelExportController.CanAccessJob(access, "42", job));
+        Assert.False(ExcelExportController.CanAccessJob(access, "43", job));
+    }
+
     [Fact]
     public void Non_admin_can_access_only_owned_jobs_for_assigned_reports()
     {

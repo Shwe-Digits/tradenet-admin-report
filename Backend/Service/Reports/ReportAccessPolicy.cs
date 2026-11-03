@@ -23,6 +23,14 @@ public sealed class ReportAccessPolicy
         if (string.Equals(userType, "Super Administrator", StringComparison.OrdinalIgnoreCase))
             return new ReportAccessPolicy(true, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
+        if (string.Equals(userType, "ICT Report", StringComparison.OrdinalIgnoreCase))
+            return new ReportAccessPolicy(false, new HashSet<string>(
+                FamilyPrefixes.Select(family => family.Category).Concat(new[]
+                {
+                    "report-pathaka", "report-payment", "report-member",
+                    "report-oga-recommendation", "report-eicc",
+                }), StringComparer.OrdinalIgnoreCase));
+
         var categories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if (string.Equals(userType, "Account User", StringComparison.OrdinalIgnoreCase))
             categories.Add("report-payment");

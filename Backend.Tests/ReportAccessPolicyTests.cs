@@ -1,10 +1,72 @@
 using API.Model.TradeNet;
 using API.Service.Reports;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Routing;
+using System.Reflection;
+using System.Security.Claims;
 
 namespace Backend.Tests;
 
 public class ReportAccessPolicyTests
 {
+    [Theory]
+    [InlineData("ImportLicencePendingReport", true)]
+    [InlineData("BorderImportLicencePendingReport", true)]
+    [InlineData("DataImport", false)]
+    public async Task Ict_access_is_enforced_by_the_report_authorization_filter(string controller, bool allowed)
+    {
+        using var db = ReportTestHelper.CreateInMemoryDbContext(Guid.NewGuid().ToString());
+        db.Users.Add(new User
+        {
+            Id = 42, UserType = "ICT Report", UserName = "ict", FullName = "ICT Test",
+            Password = "test-only", Position = "ICT", IsActive = true,
+        });
+        await db.SaveChangesAsync();
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        {
+            new Claim(ClaimTypes.Name, "42"), new Claim(ClaimTypes.Role, "User"),
+        }, "Test"));
+        var descriptor = new ControllerActionDescriptor
+        {
+            ControllerName = controller,
+            ControllerTypeInfo = ReportTestHelper.ControllerTypes
+                .Single(type => type.Name == controller + "Controller").GetTypeInfo(),
+        };
+        var context = new AuthorizationFilterContext(new ActionContext(
+            new DefaultHttpContext { User = principal }, new RouteData(), descriptor),
+            Array.Empty<IFilterMetadata>());
+
+        await new ReportAccessFilter(new ReportAccessService(db)).OnAuthorizationAsync(context);
+
+        if (allowed) Assert.Null(context.Result);
+        else Assert.IsType<ForbidResult>(context.Result);
+    }
+
+    [Theory]
+    [InlineData("ICT Report")]
+    [InlineData("ict report")]
+    public void Ict_report_user_can_access_every_report_without_admin_privileges(string userType)
+    {
+        var access = ReportAccessPolicy.Create(userType, Array.Empty<UserDetail>());
+        var reports = ReportTestHelper.ControllerTypes
+            .Select(type => type.Name.Replace("Controller", "", StringComparison.Ordinal))
+            .Where(name => !name.EndsWith("DataImport", StringComparison.Ordinal));
+
+        Assert.False(access.IsAdmin);
+        foreach (var report in reports)
+        {
+            Assert.True(access.CanAccess(report), $"ICT must be able to read {report}.");
+            Assert.Contains(ReportAccessPolicy.CategoryForController(report), access.Categories);
+        }
+        Assert.True(access.CanAccess("AdvanceSearchImportLicence"));
+        Assert.True(access.CanAccess("AdvanceSearchBorderImportLicence"));
+        Assert.False(access.CanAccess("DataImport"));
+        Assert.False(access.CanAccess("UnknownNewReport"));
+    }
+
     [Fact]
     public void Report_user_sees_only_assigned_type_and_subtype()
     {
