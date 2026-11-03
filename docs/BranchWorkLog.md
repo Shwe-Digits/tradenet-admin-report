@@ -3,6 +3,40 @@
 This journal records which assignment was implemented on each branch and its actual
 merge/deployment state. Add the newest assignment first.
 
+## `feature/ict-report-user`
+
+- Assignment date: 2026-11-03. Status: implemented and committed locally;
+  not pushed, merged, or deployed. No live user records were changed.
+- Report repository base: `fcf556e` on `fix/import-turndown-valid-remarks`;
+  implementation: `bbb34ad`.
+- Legacy admin repository: `H:/tradenet/tradenet-next-assignment/admin`, branch
+  `feature/ict-report-user`, base `1def3d9` on `feature/maccs-response-columns`,
+  implementation `f5747ee`. Legacy API source is unchanged.
+- Added `ICT Report` to the user-type dropdown and a Reports portal link for
+  that role. Existing user save/update/authentication already accept this value;
+  no API endpoint, stored procedure, or schema change was needed.
+- ICT receives every mapped report category, including Oversea/Border licences,
+  permits, registrations, payment, OGA, and EICC. It remains a non-admin user:
+  data imports, activity-log administration, and other users' export jobs remain
+  restricted. Existing report pages are reused; no separate ICT report layout
+  or dataset was defined in this assignment.
+- Verification: six expected failures reproduced before the policy change;
+  all 18 focused policy, authorization-filter, and export-access tests passed.
+  Playwright/Chrome passed the ICT navigation and blocked-import browser check
+  with mocked API responses. Temporary Vite server was stopped.
+- Legacy C# build and isolated compilation of the shared layout and user form
+  passed. Full view compilation is blocked by an unchanged parse error in
+  `Views/OGARecommendation/OGAUserList.cshtml:5`; the default view build also
+  encounters nested Web.config files under checked-in build artifacts.
+  Existing dependency/binding warnings remain. Restored NuGet packages are local
+  verification artifacts, not committed; generated tracked bin/obj changes were
+  restored after verification.
+- Logs: `artifacts/ict-report-access-{red,green}.log` and legacy
+  `.localtools/run/logs/ict-report-{admin-code-build,changed-views-build}.log`.
+- Rollout requires the legacy admin and report backend changes. Creating or
+  assigning an ICT account is a separate operational step. No deployment was
+  performed, and the earlier Turndown branch remains an ancestor of this branch.
+
 ## `fix/import-turndown-valid-remarks`
 
 - Assignment date: 2026-10-31.
