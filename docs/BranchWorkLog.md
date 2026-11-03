@@ -5,8 +5,9 @@ merge/deployment state. Add the newest assignment first.
 
 ## `feature/ict-report-user`
 
-- Assignment date: 2026-11-03. Status: implemented and committed locally;
-  not pushed, merged, or deployed. No live user records were changed.
+- Assignment date: 2026-11-03. Status: implemented, committed, and pushed to
+  `origin/feature/ict-report-user` in both repositories; remote branch heads
+  verified. Not merged or deployed. No live user records were changed.
 - Report repository base: `fcf556e` on `fix/import-turndown-valid-remarks`;
   implementation: `bbb34ad`.
 - Legacy admin repository: `H:/tradenet/tradenet-next-assignment/admin`, branch
