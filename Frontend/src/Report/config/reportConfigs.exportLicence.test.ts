@@ -311,17 +311,13 @@ describe('Export Licence report configs', () => {
     ).toBe('Export Licence Voucher List (01/02/2026) To (03/02/2026)');
   });
 
-  it('action reports hide the old HSCode column where the old RDLC did not show it', () => {
-    // Cancellation is NOT in this list: CancelReport.rdlc on tradenet-2.0-admin
-    // origin/master shows HSCode at rdlc:391 and again at rdlc:955. The earlier
-    // exclusion came from the repo's stale 2022 working tree.
-    // Actual Amendment is no longer in this list either -- the customer asked for an HSCode
-    // column on it (2026-09-05), a deliberate addition over ActualAmendReport.rdlc.
+  it('Amendment includes the HS Code requested in the November export-report sample', () => {
+    // The new request intentionally extends the old layout with item fields.
     expect(
       reportConfigs.ExportLicenceAmendmentReport.columns.some(
         (column) => column.dataIndex === 'hsCode'
       )
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it('Actual Amendment shows HSCode and the parent licence number', () => {
@@ -344,7 +340,7 @@ describe('Export Licence report configs', () => {
     expect(column('LicenceAmendmentNo')?.dataIndex).toBe('licenceNo');
   });
 
-  it('cancellation matches CancelReport.rdlc: HS Code once, Licence No is the original', () => {
+  it('cancellation preserves the old columns alongside the requested item columns', () => {
     const cfg = reportConfigs.ExportLicenceCancellationReport;
     const column = (key: string) => cfg.columns.find((c) => c.key === key);
 
@@ -352,8 +348,9 @@ describe('Export Licence report configs', () => {
     expect(column('LicenceNo')?.dataIndex).toBe('oldLicenceNo');
     expect(column('CancellationNo')?.dataIndex).toBe('licenceNo');
 
-    // rdlc:391 + rdlc:955 render HSCode twice; we render it once, beside Total Value.
-    expect(cfg.columns.filter((c) => c.dataIndex === 'hsCode')).toHaveLength(1);
+    // The November sample adds HS before Currency and retains the original HS Code on the right.
+    expect(cfg.columns.filter((c) => c.dataIndex === 'hsCode')).toHaveLength(2);
+    expect(column('ItemHSCode')?.dataIndex).toBe('hsCode');
     expect(cfg.columns.slice(-4).map((c) => c.key)).toEqual([
       'Currency',
       'TotalValue',

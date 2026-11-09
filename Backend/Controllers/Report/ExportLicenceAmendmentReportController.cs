@@ -21,7 +21,8 @@ namespace Backend.Controllers.Report
     // Bumped 2026-09-04: the Amend / Actual Amend date-window fix changes WHICH rows an
     // export contains for an unchanged request payload, so cached closed-period files
     // must not be reused (see ExcelExportJobService).
-    [ExcelFormatVersion(2)]
+    // v3: include the requested item Description and QTY columns in regenerated exports.
+    [ExcelFormatVersion(3)]
     public class ExportLicenceAmendmentReportController : ControllerBase, IStreamingExcelReport
     {
         private const string ReportKey = "ExportLicenceAmendmentReport";

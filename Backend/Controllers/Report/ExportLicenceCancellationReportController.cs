@@ -21,7 +21,8 @@ namespace Backend.Controllers.Report
     // v2: CancelReport.rdlc's per-currency footer and its HS Code column both arrive here, and the
     // deterministic TOP 1 can change Currency / HS Code / Total Value for a multi-item licence, so
     // a cached .xlsx from before this change must not be reused.
-    [ExcelFormatVersion(2)]
+    // v3: include the requested item Description and QTY columns in regenerated exports.
+    [ExcelFormatVersion(3)]
     public class ExportLicenceCancellationReportController : ControllerBase, IStreamingExcelReport
     {
         private const string ReportKey = "ExportLicenceCancellationReport";

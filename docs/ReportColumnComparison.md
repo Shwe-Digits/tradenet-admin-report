@@ -612,6 +612,11 @@ Extra in new (0): _None_
 
 ### ExportLicenceActualAmendmentReport
 
+_2026-11-09 request (`Export Reports.pdf`): add `HS Code`, `Description`, and `QTY`
+after Company Address, before Currency, in the table and Excel. This intentionally
+extends the legacy layout; the existing right-hand HSCode column remains. Filters
+and one-row-per-licence behavior are unchanged._
+
 Title: Export Licence Actual Amendment Report
 Old source: `AmendReport.rdlc`
 Old columns (10): `No.`, `Section`, `Licence No`, `Licence Amendment No`, `Amendment Date`, `Company Registration No`, `Company Name`, `Company Address`, `Curency`, `Total Value`
@@ -622,6 +627,10 @@ _2026-09-04: old columns re-read from the RDLC. Neither `AmendReport.rdlc` nor `
 
 
 ### ExportLicenceAmendmentReport
+
+_2026-11-09 request (`Export Reports.pdf`): add `HS Code`, `Description`, and `QTY`
+after Company Address, before Currency, in the table and Excel. This intentionally
+extends the legacy layout. Filters and one-row-per-licence behavior are unchanged._
 
 Title: Export Licence Amendment Report
 Old source: `AmendReport.rdlc`
@@ -667,6 +676,11 @@ Need in new (0): _None_
 Extra in new (0): _None_
 
 ### ExportLicenceCancellationReport
+
+_2026-11-09 request (`Export Reports.pdf`): add `HS Code`, `Description`, and `QTY`
+after Company Address, before Currency, in the table and Excel. The sample retains
+the existing HS Code column beside Total Value; both positions are preserved.
+Filters, licence counts, and currency totals are unchanged._
 
 Title: Export Licence Cancellation Report
 Old source: `CancelReport.rdlc`

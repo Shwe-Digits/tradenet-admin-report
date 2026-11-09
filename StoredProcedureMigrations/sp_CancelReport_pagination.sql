@@ -52,7 +52,7 @@ BEGIN
         -- cancels, which does hold them. ORDER BY ImportPermitItem.Id makes the TOP 1 pick
         -- deterministic and identical to sp_ImportPermitListingCurrencyTotals' Cancel branch,
         -- so the per-currency footer and the rows can no longer disagree.
-        SET @sql = @cntpart + N'SELECT pg.*,(SELECT top 1 currency.Code FROM ImportPermitItem
+        SET @sql = @cntpart + N'SELECT pg.*, CAST(NULL AS nvarchar(max)) Description, CAST(NULL AS decimal(18,4)) Quantity,(SELECT top 1 currency.Code FROM ImportPermitItem
 		INNER JOIN Currency currency ON ImportPermitItem.CurrencyId = currency.Id
 		WHERE ImportPermitItem.ImportPermitId=pg.__k_ItemId
 		ORDER BY ImportPermitItem.Id) Currency,
@@ -122,7 +122,7 @@ COALESCE(
         -- where the old report shows 27,230.7600 / USD:33,835.1200.)
         -- sp_ExportPermitListingCurrencyTotals must use the IDENTICAL expression or the
         -- footer stops being the sum of the rows on screen.
-        SET @sql = @cntpart + N'SELECT pg.*,(SELECT top 1 currency.Code FROM ExportPermitItem
+        SET @sql = @cntpart + N'SELECT pg.*, CAST(NULL AS nvarchar(max)) Description, CAST(NULL AS decimal(18,4)) Quantity,(SELECT top 1 currency.Code FROM ExportPermitItem
 		INNER JOIN Currency currency ON ExportPermitItem.CurrencyId = currency.Id
 		WHERE ExportPermitItem.ExportPermitId=pg.__k_Id ORDER BY ExportPermitItem.HSCodeId, ExportPermitItem.ItemNo) Currency,
         (SELECT top 1 HSCode.Code FROM ExportPermitItem
@@ -179,7 +179,12 @@ ExportPermit.Id AS __k_Id
         -- Permit key (HSCodeId, ItemNo) here: the effective key differs per item table. The
         -- Cancel branch of sp_ExportLicenceListingCurrencyTotals MUST use the identical
         -- expression, or the footer stops being the sum of the rows on screen.
-        SET @sql = @cntpart + N'SELECT pg.*,(SELECT top 1 currency.Code FROM ExportLicenceItem
+        SET @sql = @cntpart + N'SELECT pg.*,
+        (SELECT top 1 ExportLicenceItem.Description FROM ExportLicenceItem
+            WHERE ExportLicenceItem.ExportLicenceId=pg.__k_Id ORDER BY ExportLicenceItem.Id, ExportLicenceItem.UniqueId) Description,
+        (SELECT top 1 ExportLicenceItem.Quantity FROM ExportLicenceItem
+            WHERE ExportLicenceItem.ExportLicenceId=pg.__k_Id ORDER BY ExportLicenceItem.Id, ExportLicenceItem.UniqueId) Quantity,
+        (SELECT top 1 currency.Code FROM ExportLicenceItem
 		INNER JOIN Currency currency ON ExportLicenceItem.CurrencyId = currency.Id
 		WHERE ExportLicenceItem.ExportLicenceId=pg.__k_Id ORDER BY ExportLicenceItem.Id, ExportLicenceItem.UniqueId) Currency,
         (SELECT top 1 HSCode.Code FROM ExportLicenceItem
@@ -242,7 +247,7 @@ ExportLicence.Id AS __k_Id
 	) tmp OPTION (RECOMPILE); '
             ELSE N'DECLARE @__total int = NULL; ' END;
 
-        SET @sql = @cntpart + N'SELECT pg.*,(SELECT top 1 currency.Code FROM BorderExportLicenceItem
+        SET @sql = @cntpart + N'SELECT pg.*, CAST(NULL AS nvarchar(max)) Description, CAST(NULL AS decimal(18,4)) Quantity,(SELECT top 1 currency.Code FROM BorderExportLicenceItem
 		INNER JOIN Currency currency ON BorderExportLicenceItem.CurrencyId = currency.Id
 		WHERE BorderExportLicenceItem.BorderExportLicenceId=pg.__k_Id) Currency,
         (SELECT top 1 HSCode.Code FROM BorderExportLicenceItem
@@ -341,7 +346,7 @@ BorderExportLicence.Id AS __k_Id
 	) tmp OPTION (RECOMPILE); '
             ELSE N'DECLARE @__total int = NULL; ' END;
 
-        SET @sql = @cntpart + N'SELECT pg.*,(SELECT top 1 currency.Code FROM BorderImportLicenceItem
+        SET @sql = @cntpart + N'SELECT pg.*, CAST(NULL AS nvarchar(max)) Description, CAST(NULL AS decimal(18,4)) Quantity,(SELECT top 1 currency.Code FROM BorderImportLicenceItem
 		INNER JOIN Currency currency ON BorderImportLicenceItem.CurrencyId = currency.Id
 		WHERE BorderImportLicenceItem.BorderImportLicenceId=pg.__k_Id) Currency,
         (SELECT top 1 HSCode.Code FROM BorderImportLicenceItem
@@ -429,7 +434,7 @@ BorderImportLicence.Id AS __k_Id
 		AND BorderExportPermit.SakhanId=(CASE WHEN @SakhanId=0 then BorderExportPermit.SakhanId ELSE @SakhanId END) OPTION (RECOMPILE); '
             ELSE N'DECLARE @__total int = NULL; ' END;
 
-        SET @sql = @cntpart + N'SELECT pg.*,(SELECT top 1 currency.Code FROM BorderExportPermitItem
+        SET @sql = @cntpart + N'SELECT pg.*, CAST(NULL AS nvarchar(max)) Description, CAST(NULL AS decimal(18,4)) Quantity,(SELECT top 1 currency.Code FROM BorderExportPermitItem
 		INNER JOIN Currency currency ON BorderExportPermitItem.CurrencyId = currency.Id
 		WHERE BorderExportPermitItem.BorderExportPermitId=pg.__k_Id) Currency,
         (SELECT top 1 HSCode.Code FROM BorderExportPermitItem
@@ -489,7 +494,7 @@ BorderExportPermit.Id AS __k_Id
 	) tmp OPTION (RECOMPILE); '
             ELSE N'DECLARE @__total int = NULL; ' END;
 
-        SET @sql = @cntpart + N'SELECT pg.*,(SELECT top 1 currency.Code FROM BorderImportPermitItem
+        SET @sql = @cntpart + N'SELECT pg.*, CAST(NULL AS nvarchar(max)) Description, CAST(NULL AS decimal(18,4)) Quantity,(SELECT top 1 currency.Code FROM BorderImportPermitItem
 		INNER JOIN Currency currency ON BorderImportPermitItem.CurrencyId = currency.Id
 		WHERE BorderImportPermitItem.BorderImportPermitId=pg.__k_Id) Currency,
         (SELECT top 1 HSCode.Code FROM BorderImportPermitItem
@@ -546,7 +551,7 @@ BorderImportPermit.Id AS __k_Id
 		AND PaThaKa.CompanyRegistrationNo=(CASE WHEN @CompanyRegistrationNo='''' then PaThaKa.CompanyRegistrationNo ELSE @CompanyRegistrationNo END) OPTION (RECOMPILE); '
             ELSE N'DECLARE @__total int = NULL; ' END;
 
-        SET @sql = @cntpart + N'SELECT pg.*,(SELECT top 1 currency.Code FROM ImportLicenceItem
+        SET @sql = @cntpart + N'SELECT pg.*, CAST(NULL AS nvarchar(max)) Description, CAST(NULL AS decimal(18,4)) Quantity,(SELECT top 1 currency.Code FROM ImportLicenceItem
 		INNER JOIN Currency currency ON ImportLicenceItem.CurrencyId = currency.Id
 		WHERE ImportLicenceItem.ImportLicenceId=pg.__k_Id) Currency,
         (SELECT top 1 HSCode.Code FROM ImportLicenceItem

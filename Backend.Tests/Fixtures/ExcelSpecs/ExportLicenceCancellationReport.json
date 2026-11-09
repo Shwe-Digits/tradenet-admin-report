@@ -54,6 +54,23 @@
       ]
     },
     {
+      "key": "ItemHSCode",
+      "dataIndex": "hsCode",
+      "title": "HS Code"
+    },
+    {
+      "key": "Description",
+      "dataIndex": "description",
+      "title": "Description"
+    },
+    {
+      "key": "Quantity",
+      "dataIndex": "quantity",
+      "title": "QTY",
+      "dataType": "number",
+      "numberFormat": "#,##0.0000"
+    },
+    {
       "key": "Currency",
       "dataIndex": "currency",
       "title": "Currency"

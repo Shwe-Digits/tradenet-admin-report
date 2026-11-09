@@ -1,4 +1,5 @@
 using API.DBContext;
+using System.Text.Json.Serialization;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -37,6 +38,10 @@ public sealed class sp_ActualAmendReportResult
     public string? PostalCode { get; set; }
     public string? Currency { get; set; }
     public string? HSCode { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Description { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public decimal? Quantity { get; set; }
     public decimal? Amount { get; set; }
     public int? SakhanId { get; set; }
     public string? SakhanCode { get; set; }
@@ -61,6 +66,8 @@ public sealed class sp_ActualAmendReportRow
     public string? PostalCode { get; set; }
     public string? Currency { get; set; }
     public string? HSCode { get; set; }
+    public string? Description { get; set; }
+    public decimal? Quantity { get; set; }
     public decimal? Amount { get; set; }
     public int? SakhanId { get; set; }
     public string? SakhanCode { get; set; }
@@ -85,6 +92,8 @@ public sealed class sp_ActualAmendReportRow
         PostalCode = PostalCode,
         Currency = Currency,
         HSCode = HSCode,
+        Description = Description,
+        Quantity = Quantity,
         Amount = Amount,
         SakhanId = SakhanId,
         SakhanCode = SakhanCode,

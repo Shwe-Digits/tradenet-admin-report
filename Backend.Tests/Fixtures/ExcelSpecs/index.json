@@ -1612,7 +1612,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 10
+      "columnCount": 13
     },
     {
       "configKey": "ExportLicenceAmendmentReport",
@@ -1627,7 +1627,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 9
+      "columnCount": 12
     },
     {
       "configKey": "ExportLicenceByHSCodeReport",
@@ -1702,7 +1702,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 11
+      "columnCount": 14
     },
     {
       "configKey": "ExportLicenceCompanyListReport",

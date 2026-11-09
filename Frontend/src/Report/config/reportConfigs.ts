@@ -7371,6 +7371,23 @@ export const reportConfigs: Record<string, ReportPageConfig> = {
         ],
       },
       {
+        key: 'ItemHSCode',
+        dataIndex: 'hsCode',
+        title: 'HS Code',
+      },
+      {
+        key: 'Description',
+        dataIndex: 'description',
+        title: 'Description',
+      },
+      {
+        key: 'Quantity',
+        dataIndex: 'quantity',
+        title: 'QTY',
+        dataType: 'number',
+        numberFormat: '#,##0.0000',
+      },
+      {
         key: 'Currency',
         dataIndex: 'currency',
         title: 'Currency',
@@ -7446,6 +7463,23 @@ export const reportConfigs: Record<string, ReportPageConfig> = {
           'country',
           'postalCode',
         ],
+      },
+      {
+        key: 'ItemHSCode',
+        dataIndex: 'hsCode',
+        title: 'HS Code',
+      },
+      {
+        key: 'Description',
+        dataIndex: 'description',
+        title: 'Description',
+      },
+      {
+        key: 'Quantity',
+        dataIndex: 'quantity',
+        title: 'QTY',
+        dataType: 'number',
+        numberFormat: '#,##0.0000',
       },
       {
         key: 'Currency',
@@ -7879,6 +7913,23 @@ export const reportConfigs: Record<string, ReportPageConfig> = {
         ],
       },
       {
+        key: 'ItemHSCode',
+        dataIndex: 'hsCode',
+        title: 'HS Code',
+      },
+      {
+        key: 'Description',
+        dataIndex: 'description',
+        title: 'Description',
+      },
+      {
+        key: 'Quantity',
+        dataIndex: 'quantity',
+        title: 'QTY',
+        dataType: 'number',
+        numberFormat: '#,##0.0000',
+      },
+      {
         key: 'Currency',
         dataIndex: 'currency',
         title: 'Currency',
@@ -7892,10 +7943,8 @@ export const reportConfigs: Record<string, ReportPageConfig> = {
         numberFormat: '#,##0.0000',
       },
       {
-        // CancelReport.rdlc (origin/master) renders HSCode TWICE -- at column 2 (rdlc:391)
-        // and again here at column 12 (rdlc:955), both bound to =Fields!HSCode.Value. The
-        // duplicate is an old layout bug; we render it once, beside Total Value, as the
-        // Export Permit twin does.
+        // The November sample retains this original HS Code column beside Total Value;
+        // the newly requested item columns appear before Currency.
         key: 'HSCode',
         dataIndex: 'hsCode',
         title: 'HS Code',
