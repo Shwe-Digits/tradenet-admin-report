@@ -8,8 +8,12 @@ describe('Import Licence Voucher Detail Report', () => {
     const detail = reportConfigs.ImportLicenceVoucherDetailReport;
     expect(detail).toBeDefined();
     expect(detail.filters).toEqual(original.filters);
-    expect(detail.columns.filter(column => column.key !== 'Description').map(column => column.key))
-      .toEqual(original.columns.map(column => column.key));
+    expect(detail.columns.filter(column => column.key !== 'Description'))
+      .toEqual(original.columns.map(column => column.key === 'Amount' ? { ...column, title: 'Amount' } : column));
+    expect(detail.reportHeading).toEqual(original.reportHeading);
+    expect(detail.currencyTotalsColumns).toEqual(original.currencyTotalsColumns);
+    expect(detail.initialSortColumn).toBe(original.initialSortColumn);
+    expect(detail.showRowNumber).toBe(original.showRowNumber);
     expect(detail.columns.find(column => column.key === 'Description'))
       .toMatchObject({ dataIndex: 'description', title: 'Account Title Description' });
     expect(detail.columns.find(column => column.key === 'Amount'))

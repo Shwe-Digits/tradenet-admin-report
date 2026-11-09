@@ -101,8 +101,7 @@
       "key": "Amount",
       "dataIndex": "amount",
       "title": "Amount",
-      "dataType": "number",
-      "numberFormat": "#,##0.00"
+      "dataType": "number"
     }
   ],
   "currencyTotalsColumns": {

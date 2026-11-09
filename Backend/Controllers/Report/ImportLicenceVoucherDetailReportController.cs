@@ -69,7 +69,7 @@ namespace Backend.Controllers.Report
                 result.ColumnTotals = new Dictionary<string, decimal> { ["amount"] = rows[0].AmountTotal };
                 // Licence value/count footers remain independent of the number of fee rows.
                 result.CurrencyTotals = await ImportLicenceListingCurrencyTotals.ExecuteVoucherAsync(
-                    _context, procedureRequest!.FromDate, procedureRequest.ToDate.Date.AddDays(1).AddMilliseconds(-3),
+                    _context, procedureRequest!.FromDate, procedureRequest.ToDate,
                     procedureRequest.ExportImportSectionId, procedureRequest.PaymentType,
                     procedureRequest.ApplyType, procedureRequest.CompanyRegistrationNo);
             }

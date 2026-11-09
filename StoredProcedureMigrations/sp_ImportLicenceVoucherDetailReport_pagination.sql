@@ -44,7 +44,7 @@ BEGIN
     WHERE a.IsPayment=1 AND imp.Status=N'Approved'
         AND a.TransactionFormType=N'Import Licence'
         AND a.PaymentDate>=@FromDate
-        AND a.PaymentDate<DATEADD(day,1,CONVERT(date,@ToDate))
+        AND a.PaymentDate<=@ToDate
         AND (@ExportImportSectionId=0 OR imp.ExportImportSectionId=@ExportImportSectionId)
         AND (@PaymentType=N'' OR a.PaymentType=@PaymentType)
         AND imp.ApplyType=@ApplyType

@@ -194,6 +194,19 @@ public sealed class ImportLicenceVoucherDetailTests : IAsyncLifetime
         Assert.Equal(10000m,rows[0].AmountTotal);
     }
 
+    [Fact]
+    public async Task Payment_date_filter_preserves_the_original_voucher_timestamp_bounds()
+    {
+        await using var db = CreateDb();
+        await db.Database.ExecuteSqlRawAsync("""
+            INSERT AccountTransaction VALUES
+                ('late','licence','Import Licence',1,'2026-11-02T12:00:00','2026-11-02','V006','Cash',100);
+            INSERT AccountTransactionDetail VALUES ('late-detail','late',1,100,1);
+            """);
+        // The original voucher filter uses PaymentDate <= ToDate, not a different end-date rule.
+        Assert.Equal(4,(await Read(db)).Count);
+    }
+
     private sealed class CaptureSink : IExcelRowSink
     {
         public List<sp_ImportLicenceVoucherDetailReportResult> Rows { get; } = new();

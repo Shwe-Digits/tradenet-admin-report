@@ -14558,7 +14558,7 @@ reportConfigs.ImportLicenceVoucherDetailReport = {
     column.key === 'Amount'
       ? [
           { key: 'Description', dataIndex: 'description', title: 'Account Title Description' },
-          { ...column, title: 'Amount', numberFormat: '#,##0.00' },
+          { ...column, title: 'Amount' },
         ]
       : [column]
   ),

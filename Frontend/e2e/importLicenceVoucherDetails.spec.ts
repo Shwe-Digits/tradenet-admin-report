@@ -36,7 +36,7 @@ test('Voucher Detail shows separate fees and exports the detail presentation', a
   await page.getByRole('button', { name: /Filter$/ }).click();
   await expect(page.getByRole('cell', { name: 'လိုင်စင်ကြေး', exact: true })).toBeVisible();
   await expect(page.getByRole('cell', { name: 'V001', exact: true })).toHaveCount(3);
-  await expect(page.getByRole('cell', { name: '5,000.00', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: '5000', exact: true })).toBeVisible();
   await expect(page.getByRole('columnheader', { name: 'Account Title Description', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /Excel$/ }).click();
   await expect.poll(() => excel).toBeDefined();
