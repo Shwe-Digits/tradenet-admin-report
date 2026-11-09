@@ -6,7 +6,8 @@ merge/deployment state. Add the newest assignment first.
 ## `feature/import-licence-voucher-details`
 
 - Assignment date: 2026-11-10. Base: `main` at `4ed1f4c`. Implementation commit:
-  `a299647`. Completed locally; not pushed, merged, or deployed.
+  `a299647`; exact-parity follow-up: `1fc779a`. Completed locally; not pushed,
+  merged, or deployed.
 - Request: add a separate Import Licence Voucher Detail Report using
   `AccountTitle.Description` and one row per `AccountTransactionDetail.Amount`,
   joined through the detail's own account transaction. Preserve the existing
@@ -17,8 +18,8 @@ merge/deployment state. Add the newest assignment first.
   original voucher-level calculation without multiplying by fee count.
 - New additive procedure: `sp_ImportLicenceVoucherDetailReport_pagination` in
   `StoredProcedureMigrations/sp_ImportLicenceVoucherDetailReport_pagination.sql`.
-  Paid/approved Import Licence eligibility remains. Payment date filtering includes
-  the full selected end date. Sorting is allowlisted and paging uses stable detail
+  Paid/approved Import Licence eligibility remains. Payment date bounds match the
+  original voucher procedure. Sorting is allowlisted and paging uses stable detail
   keys. Existing voucher/account-summary procedures and table data are unchanged.
 - Verification: 32 focused backend checks passed, including real SQL execution
   against disposable LocalDB databases, pagination, equal fee amounts, filters,
@@ -30,6 +31,14 @@ merge/deployment state. Add the newest assignment first.
   because Import/Border Import Turndown fixtures are absent from the baseline
   index. Six new detail-report presentation fixtures cover the default and all
   five Apply Types. No unrelated fixtures were changed.
+- Exact-parity follow-up: retained the original Amount number format and precise
+  PaymentDate <= ToDate rule, including the original currency-footer date bounds.
+  Strengthened assertions to compare every original column configuration, filter,
+  heading, sorting default, row-number setting, and currency-footer placement.
+  The only column changes are Account Title Description and the Amount heading;
+  fee values and row counts come from transaction details. All 12 detail/backend
+  tests, 1,574 frontend checks, TypeScript checking, and the mocked Chrome test
+  passed after this adjustment. Logs: `artifacts/voucher-details-parity-*.log`.
 - Deployment remains pending: install the new procedure and verify application
   EXECUTE access before publishing this branch's frontend/backend. No production
   SQL was run for this assignment. Deferred ICT work remains excluded.
