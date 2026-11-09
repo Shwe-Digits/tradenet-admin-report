@@ -183,8 +183,8 @@ const ImportLicenceTurndownReport = ({
                 />
               )}
               <Typography.Text type="secondary">
-                Some historical remarks were cleared by the old system and are
-                unavailable.
+                Only turndown events with a recorded remark are included in this
+                count and history.
               </Typography.Text>
             </Space>
           </div>

@@ -41,6 +41,107 @@ merge/deployment state. Add the newest assignment first.
   Turndown fixes must be reconciled before a future full-app deployment.
 - The pre-existing Frontend README changes and generated graph were preserved.
 
+## `fix/import-turndown-valid-remarks`
+
+- Assignment date: 2026-10-31.
+- Base branch: `main`; base commit: `d6963fc`.
+- Fix commit: `708887f`.
+- Status: Scope correction deployed to production with user approval on
+  2026-11-01 from `173a727` (backend version `1.0.0+173a727`), replacing the
+  restrictive `70dae93` deployment of 2026-10-31. Branch remains local;
+  not pushed or merged into `main`.
+
+### Scope and verification
+
+- Scope correction requested on 2026-10-31 after the deployed current-status
+  restriction reduced the October border report to three rows: removed the
+  `Status = 'Reject'` restriction from date qualification, main rows, and history.
+  Retained NULL/blank/whitespace and `Re Open` remark exclusion consistently.
+  Recorded history remains eligible after the application's status changes.
+  Both Excel format versions are now 3 to prevent reuse of restrictive exports.
+  Correction committed as `173a727` and deployed on 2026-11-01. Updated only the
+  two procedures and backend cache versions; frontend unchanged.
+- Correction verification: six regression failures reproduced before changing
+  SQL/cache versions; all 24 focused backend tests passed afterward. A read-only
+  execution of the corrected SQL body against October 1-31 production border
+  data returned 906 rows with zero missing remarks, without altering procedures.
+  Logs: `artifacts/turndown-status-scope-red.log` and
+  `artifacts/turndown-status-scope-green.log`. No frontend changes were needed.
+- Correction rollout: both SQL definitions updated in one transaction before
+  running `deploy.ps1 -NoGit -NoFrontend`. Source data, Apply Types, and SQL
+  permissions were unchanged. Backup:
+  `.deploy/pre-turndown-scope-deploy-20261101-112737/`, including site files and
+  `rollback-procedures.sql` (uploaded images excluded).
+- Live correction verification passed with the application SQL login: October
+  reports returned 2,949 oversea and 906 border rows with zero missing remarks.
+  Pending and Reject samples in both families matched history counts and latest
+  dates/remarks. Both procedure EXECUTE permissions remain present.
+- API health and public site returned HTTP 200; API.dll matches the release;
+  backend settings and frontend web.config match the backup. The unchanged public
+  bundle matches the existing built asset. Both report routes return HTTP 401
+  without login; authenticated production browser testing was not performed.
+  Logs: `.deploy/turndown-scope-deployment-20261101.log` and
+  `.deploy/turndown-scope-live-{sql,site}-verification.log`.
+- The following notes describe the earlier deployed revision, before that
+  local scope correction.
+
+- Corrected both Import Licence Turndown reports to include only applications
+  currently at `Status = 'Reject'`. NULL, empty, whitespace-only, and identifiable
+  `Re Open` remarks are excluded before date qualification, latest-event
+  selection, counts, history details, and Excel generation. Whitespace checks
+  cover spaces, tabs, line breaks, and non-breaking spaces.
+- The custom Turndown reports have no matching legacy RDLC/view. Report columns,
+  filter controls, and Apply Type lookup values were preserved. Legacy API code
+  confirms rejection sets `Reject` and writes a history remark; later checking
+  can clear history remarks.
+- Replaced the stale missing-remark explanation with the valid-event counting
+  rule. Existing wrapping, Show more/Show less, and inline expansion remain.
+- Bumped both report controllers' Excel format versions to 2 so cached exports
+  generated under the old eligibility rules cannot be reused after rollout.
+- Regression run reproduced 11 failures before the fix. All 24 focused backend
+  SQL, validation, cache-version, and export-contract tests passed afterward.
+  Tests use disposable LocalDB databases. Both updated browser tests and the
+  frontend production build passed (existing bundle-size warning only).
+- Read-only production-data inspection for 2026-10-01 through 2026-10-02 found
+  historical events on 311 now-approved oversea applications and 40 now-approved
+  border applications, confirming the senior's concern. Running the corrected
+  procedure body without installing it returned 12 oversea applications and
+  zero border applications for that range, with no missing remarks or
+  non-rejected rows (~1.8s / ~0.6s). These counts reflect current statuses at the
+  time of inspection, not historical status snapshots.
+
+### Rollout notes
+
+- Update `dbo.sp_ImportLicenceTurndownReport_pagination` and
+  `dbo.sp_ImportLicenceTurndownHistory` from
+  `StoredProcedureMigrations/sp_ImportLicenceTurndownReport.sql` before deploying
+  the backend/frontend. The Apply Type procedure is unchanged. Running
+  `deploy.bat` alone does not install these SQL changes.
+- Updated both procedures in one transaction on production `TradeNetDB` using
+  Windows authentication, then deployed the exact reviewed branch with
+  `deploy.ps1 -NoGit`. The Apply Type procedure, source records, and permissions
+  were not changed. Application-login EXECUTE permissions were verified.
+- Rollback backup: `.deploy/pre-valid-remarks-deploy-20261031-115039/` contains
+  the previous backend/frontend and `rollback-procedures.sql`. Uploaded images
+  were excluded from the site backup. Live backend settings and frontend
+  `web.config` hashes match their pre-deployment backups.
+- Live checks passed: API health and public frontend HTTP 200; deployed API.dll,
+  public frontend bundle `/assets/index-DUtLZXjn.js`, and share files match the
+  built outputs. Both report routes return HTTP 401 without authentication.
+  Authenticated production browser testing was not performed.
+- Installed procedures executed successfully with the application SQL login.
+  October 1-2 returned 12 oversea and zero border rows, all currently rejected
+  with valid remarks. Positive samples from both families matched their history
+  counts, latest dates, and remarks; approved-application histories were excluded.
+- Deployment log: `.deploy/valid-remarks-deployment-20261031.log`; live SQL and
+  site verification logs use the `valid-remarks-live-*-verification.log` names.
+  Build completed with existing Node engine, dependency audit, and bundle-size
+  warnings. No dependency changes were made.
+- Historical cleared remarks cannot be recovered; counts now represent the
+  remaining valid, recorded turndown events.
+- The temporary browser-test server was stopped after verification. Existing
+  unrelated README changes and generated graph artifacts remain uncommitted.
+
 ## `feature/import-licence-turndown-reports`
 
 - Assignment date: 2026-10-29

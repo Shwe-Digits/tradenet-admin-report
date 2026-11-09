@@ -78,7 +78,11 @@ for (const border of [false, true]) {
             createdDate: '2026-10-29T14:38:05',
             remark: longRemark,
           },
-          { id: 'earlier', createdDate: '2026-09-01T09:00:00', remark: null },
+          {
+            id: 'earlier',
+            createdDate: '2026-09-01T09:00:00',
+            remark: 'Earlier valid remark.',
+          },
         ];
       } else if (path === `${report}/Excel`) {
         excelBody = route.request().postDataJSON();
@@ -148,8 +152,11 @@ for (const border of [false, true]) {
     await expect(details.getByText('29/10/2026 14:38:05')).toBeVisible();
     await expect(details.getByText('01/09/2026 09:00:00')).toBeVisible();
     await expect(
-      details.getByText('Remark unavailable', { exact: true })
+      details.getByText('Earlier valid remark.', { exact: true })
     ).toBeVisible();
+    await expect(
+      details.getByText('Remark unavailable', { exact: true })
+    ).toHaveCount(0);
     await expect(details.locator('tbody tr.ant-table-row')).toHaveCount(2);
     const remark = details.locator('.turndown-remark').first();
     const showMore = remark.locator('button').filter({ hasText: 'Show more' });
