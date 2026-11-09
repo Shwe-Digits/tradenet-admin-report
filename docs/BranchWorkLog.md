@@ -6,8 +6,9 @@ merge/deployment state. Add the newest assignment first.
 ## `feature/export-licence-item-columns`
 
 - Assignment date: 2026-11-09. Base: `main` at `d6963fc`. Implementation:
-  `0f97ffd`. Branch published to origin; main merge and deployment pending.
-  Deferred ICT work remains on its own branch and is not included here.
+  `0f97ffd`. Branch published, fast-forward merged into `main`, and both remote
+  heads verified at release `e3fe76b`. Deployed to production with user approval
+  on 2026-11-09. Deferred ICT work remains on its own branch and is excluded.
 - Request: the November 6 forwarded email and `Export Reports.pdf` add HS Code,
   Description, and QTY after Company Address, before Currency, to Export Licence
   Cancellation, Amendment, and Actual Amendment reports. Table and Excel column
@@ -36,13 +37,33 @@ merge/deployment state. Add the newest assignment first.
 - Rollout: apply `StoredProcedureMigrations/sp_AmendReport_pagination.sql`,
   `sp_ActualAmendReport_pagination.sql`, and `sp_CancelReport_pagination.sql`
   before deploying the backend/frontend. Original non-pagination procedures and
-  source data are unchanged. No scripts were installed on the shared database.
+  source data are unchanged. All three pagination procedures were updated in one
+  transaction on shared `TradeNetDB` on 2026-11-09 before the app deployment;
+  application EXECUTE permissions were verified. Their pre-change definitions
+  are in the site backup's `rollback-procedures.sql`.
   The existing deployed Turndown correction was preserved by merging
   `fix/import-turndown-valid-remarks` in `a788554`; the ICT feature is excluded.
 - Release preparation on 2026-11-09: all 56 combined backend regression checks
   and six focused frontend checks passed after that preservation merge. Preflight
   confirmed the three live procedure definitions match pre-feature `main`.
   Site rollback backup: `.deploy/pre-export-items-deploy-20261109-171234/`.
+- Deployment used `deploy.ps1 -NoGit` from the reviewed merged main revision.
+  Live API.dll reports `1.0.0+e3fe76b` and matches the built binary. Health and
+  public frontend return HTTP 200; `/assets/index-D2vqxCXD.js` matches the build
+  and contains all three item-column blocks and the preserved Turndown rule.
+  Backend appsettings.json and frontend web.config hashes match the backups.
+- Live application-login SQL checks preserved every existing field/count in
+  25 sampled October rows (5 Amendment, 10 Actual Amendment, 10 Cancellation).
+  New Description/QTY pairs matched source items. Shared Import Permit result
+  compatibility and procedure EXECUTE permissions were checked. All three export
+  report routes return HTTP 401 without login. No authenticated production
+  browser session was used; UI verification was local with mocked responses.
+- Turndown preservation checks returned 2,602 oversea and 831 border October rows
+  with no missing remarks; Pending/Reject samples matched their history counts,
+  latest dates and remarks. Existing dependency engine/audit and bundle-size
+  warnings remain; dependency files were unchanged by deployment.
+- Operational logs: `.deploy/export-items-release/deployment-20261109.log`,
+  `sql-verification.log`, `site-verification.log`, and `turndown-preservation.log`.
 - The pre-existing Frontend README changes and generated graph were preserved.
 
 ## `fix/import-turndown-valid-remarks`
@@ -52,8 +73,9 @@ merge/deployment state. Add the newest assignment first.
 - Fix commit: `708887f`.
 - Status: Scope correction deployed to production with user approval on
   2026-11-01 from `173a727` (backend version `1.0.0+173a727`), replacing the
-  restrictive `70dae93` deployment of 2026-10-31. Branch remains local;
-  not pushed or merged into `main`.
+  restrictive `70dae93` deployment of 2026-10-31. The deployed correction was
+  subsequently integrated into `main` with the export-item release `e3fe76b` on
+  2026-11-09; its original branch reference is retained locally.
 
 ### Scope and verification
 
