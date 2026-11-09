@@ -3,6 +3,44 @@
 This journal records which assignment was implemented on each branch and its actual
 merge/deployment state. Add the newest assignment first.
 
+## `feature/export-licence-item-columns`
+
+- Assignment date: 2026-11-09. Base: `main` at `d6963fc`. Implementation:
+  `0f97ffd`. Committed locally; not pushed, merged, or deployed. Deferred ICT
+  work remains on its own branch and is not included here.
+- Request: the November 6 forwarded email and `Export Reports.pdf` add HS Code,
+  Description, and QTY after Company Address, before Currency, to Export Licence
+  Cancellation, Amendment, and Actual Amendment reports. Table and Excel column
+  order match. Existing right-hand HS Code columns were retained as in the sample.
+- Reused the existing item HS Code and added item Description / decimal Quantity
+  to the SQL/API/export pipeline. Existing first-item selection and one row per
+  licence remain; missing items yield NULL details. Filters, counts, currency
+  values, and totals were preserved. Shared procedure branches for other families
+  return NULL details, omitted from their JSON, without adding UI columns.
+- Both table and Excel use the same projection. The three controllers now use
+  Excel format version 3 to prevent reuse of old cached workbooks.
+- Verification: six backend and three frontend regressions reproduced before
+  implementation. All 32 focused backend tests passed, including multi-item,
+  missing-item, streamed-export, shared Import Permit compatibility, date-window,
+  and cache checks, using disposable LocalDB databases. All three Playwright
+  browser cases passed with mocked responses; production frontend build passed
+  with the existing chunk-size warning. Temporary Vite server was stopped.
+- The broader frontend run passed 24 checks and retained three failures also
+  reproduced against original `main`: old subtitle wording, voucher payment
+  lookup, and New report Licence Date expectations. The Excel contract run passed
+  1,313 checks; its one existing coverage failure is missing Import/Border Import
+  Turndown fixture-index entries, also absent on `main`. Only the three requested
+  Excel fixtures and their index entries were changed.
+- Logs: `artifacts/export-item-columns-{red,green,ui-red,ui-green,baseline,build,
+  browser,excel-contracts,fixture-coverage}.log`.
+- Rollout: apply `StoredProcedureMigrations/sp_AmendReport_pagination.sql`,
+  `sp_ActualAmendReport_pagination.sql`, and `sp_CancelReport_pagination.sql`
+  before deploying the backend/frontend. Original non-pagination procedures and
+  source data are unchanged. No scripts were installed on the shared database.
+  This branch starts from the requested `main`; separately deployed, unmerged
+  Turndown fixes must be reconciled before a future full-app deployment.
+- The pre-existing Frontend README changes and generated graph were preserved.
+
 ## `feature/import-licence-turndown-reports`
 
 - Assignment date: 2026-10-29
