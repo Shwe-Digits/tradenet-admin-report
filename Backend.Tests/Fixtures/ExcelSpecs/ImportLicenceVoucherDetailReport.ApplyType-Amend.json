@@ -1,0 +1,117 @@
+{
+  "formatVersion": 1,
+  "configKey": "ImportLicenceVoucherDetailReport",
+  "controllerName": "ImportLicenceVoucherDetailReport",
+  "title": "Import Licence Voucher Detail Report",
+  "fileName": "ImportLicenceVoucherDetailReport.xlsx",
+  "headerLines": [
+    "Ministry of Commerce",
+    "Directorate of Trade",
+    "Import Licence Voucher Detail List (01/02/2026) To (28/02/2026)"
+  ],
+  "showRowNumber": true,
+  "rowNumberTitle": "No.",
+  "columns": [
+    {
+      "key": "OriginalLicenceNo",
+      "dataIndex": "oldLicenceNo",
+      "title": "Licence No",
+      "fallbackDataIndexes": [
+        "licenceNo"
+      ]
+    },
+    {
+      "key": "ApplicationDate",
+      "dataIndex": "applicationDate",
+      "title": "Application Date",
+      "dataType": "date"
+    },
+    {
+      "key": "LicenceNo",
+      "dataIndex": "licenceNo",
+      "title": "Licence Amendment No"
+    },
+    {
+      "key": "ApplicationNo",
+      "dataIndex": "applicationNo",
+      "title": "Application No"
+    },
+    {
+      "key": "LicenceDate",
+      "dataIndex": "sLicenceDate",
+      "title": "Amendment Date"
+    },
+    {
+      "key": "CompanyRegistrationNo",
+      "dataIndex": "companyRegistrationNo",
+      "title": "Company Registration No"
+    },
+    {
+      "key": "CompanyName",
+      "dataIndex": "companyName",
+      "title": "Company Name"
+    },
+    {
+      "key": "LicValue",
+      "dataIndex": "totalAmount",
+      "title": "Lic Value",
+      "dataType": "number",
+      "numberFormat": "#,##0.0000"
+    },
+    {
+      "key": "Currency",
+      "dataIndex": "currency",
+      "title": "Currency"
+    },
+    {
+      "key": "VoucherNo",
+      "dataIndex": "voucherNo",
+      "title": "Voucher No"
+    },
+    {
+      "key": "VoucherDate",
+      "dataIndex": "sVoucherDate",
+      "title": "Voucher Date"
+    },
+    {
+      "key": "ApprovedUser",
+      "dataIndex": "approvedUser",
+      "title": "Approved User"
+    },
+    {
+      "key": "CommodityType",
+      "dataIndex": "commodityType",
+      "title": "Commodity Type"
+    },
+    {
+      "key": "TotalCIF",
+      "dataIndex": "totalCIF",
+      "title": "Total CIF",
+      "dataType": "number",
+      "numberFormat": "#,##0.0000"
+    },
+    {
+      "key": "ExchangeRate",
+      "dataIndex": "exchangeRate",
+      "title": "Exchange Rate",
+      "dataType": "number",
+      "numberFormat": "#,##0.0000"
+    },
+    {
+      "key": "Description",
+      "dataIndex": "description",
+      "title": "Account Title Description"
+    },
+    {
+      "key": "Amount",
+      "dataIndex": "amount",
+      "title": "Amount",
+      "dataType": "number",
+      "numberFormat": "#,##0.00"
+    }
+  ],
+  "currencyTotalsColumns": {
+    "labelColumnKey": "OriginalLicenceNo",
+    "valueColumnKey": "LicValue"
+  }
+}

@@ -14544,4 +14544,24 @@ export const reportConfigs: Record<string, ReportPageConfig> = {
   ...turndownReportConfigs,
 };
 
+// Fee details retain the voucher report's filters, columns and Apply Type headers.
+// The amount column comes from AccountTransactionDetail, not the voucher total.
+reportConfigs.ImportLicenceVoucherDetailReport = {
+  ...reportConfigs.ImportLicenceVoucherReport,
+  controllerName: 'ImportLicenceVoucherDetailReport',
+  title: 'Import Licence Voucher Detail Report',
+  apiRoute: 'ImportLicenceVoucherDetailReport',
+  excelRoute: 'ImportLicenceVoucherDetailReport/Excel',
+  excelFileName: 'ImportLicenceVoucherDetailReport.xlsx',
+  reportSubtitle: importLicenceRangeSubtitle('Import Licence Voucher Detail List'),
+  columns: reportConfigs.ImportLicenceVoucherReport.columns.flatMap(column =>
+    column.key === 'Amount'
+      ? [
+          { key: 'Description', dataIndex: 'description', title: 'Account Title Description' },
+          { ...column, title: 'Amount', numberFormat: '#,##0.00' },
+        ]
+      : [column]
+  ),
+};
+
 export const reportConfigList = Object.values(reportConfigs);

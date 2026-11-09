@@ -109,6 +109,7 @@ import ImportLicencePendingReport from './Page/ImportLicencePendingReport';
 import ImportLicenceTurndownReport from './Page/ImportLicenceTurndownReport';
 import ImportLicenceTotalValueLicencesReport from './Page/ImportLicenceTotalValueLicencesReport';
 import ImportLicenceVoucherReport from './Page/ImportLicenceVoucherReport';
+import ImportLicenceVoucherDetailReport from './Page/ImportLicenceVoucherDetailReport';
 import ImportPermitActualAmendmentReport from './Page/ImportPermitActualAmendmentReport';
 import ImportPermitAmendmentReport from './Page/ImportPermitAmendmentReport';
 import ImportPermitByHSCodeReport from './Page/ImportPermitByHSCodeReport';
@@ -296,6 +297,7 @@ export const reportRoutes = [
   { path: 'BorderImportLicenceTurndownReport', element: <ImportLicenceTurndownReport border /> },
   { path: 'ImportLicenceTotalValueLicencesReport', element: <ImportLicenceTotalValueLicencesReport /> },
   { path: 'ImportLicenceVoucherReport', element: <ImportLicenceVoucherReport /> },
+  { path: 'ImportLicenceVoucherDetailReport', element: <ImportLicenceVoucherDetailReport /> },
   { path: 'ImportPermitActualAmendmentReport', element: <ImportPermitActualAmendmentReport /> },
   { path: 'ImportPermitAmendmentReport', element: <ImportPermitAmendmentReport /> },
   { path: 'ImportPermitByHSCodeReport', element: <ImportPermitByHSCodeReport /> },
