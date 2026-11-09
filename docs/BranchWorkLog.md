@@ -3,6 +3,40 @@
 This journal records which assignment was implemented on each branch and its actual
 merge/deployment state. Add the newest assignment first.
 
+## `feature/import-licence-voucher-details`
+
+- Assignment date: 2026-11-10. Base: `main` at `4ed1f4c`. Implementation commit:
+  `a299647`. Completed locally; not pushed, merged, or deployed.
+- Request: add a separate Import Licence Voucher Detail Report using
+  `AccountTitle.Description` and one row per `AccountTransactionDetail.Amount`,
+  joined through the detail's own account transaction. Preserve the existing
+  voucher report, its filters, Apply Type headers, and other columns.
+- New menu/page and API: `ImportLicenceVoucherDetailReport`, under Import Licence.
+  Existing Import Licence category permissions apply. Amount totals sum fee rows
+  over the complete filtered set; licence value/currency footers retain the
+  original voucher-level calculation without multiplying by fee count.
+- New additive procedure: `sp_ImportLicenceVoucherDetailReport_pagination` in
+  `StoredProcedureMigrations/sp_ImportLicenceVoucherDetailReport_pagination.sql`.
+  Paid/approved Import Licence eligibility remains. Payment date filtering includes
+  the full selected end date. Sorting is allowlisted and paging uses stable detail
+  keys. Existing voucher/account-summary procedures and table data are unchanged.
+- Verification: 32 focused backend checks passed, including real SQL execution
+  against disposable LocalDB databases, pagination, equal fee amounts, filters,
+  account-summary fee reconciliation, controller totals, streamed Excel rows,
+  and access rules. All 1,574 frontend presentation checks and one Chrome browser
+  case passed (mocked API, separate fee rows and Excel request). Frontend production
+  build passed with the existing chunk-size warning. Temporary Vite server stopped.
+- Excel contracts: 1,333 passed; the existing fixture-coverage check still fails
+  because Import/Border Import Turndown fixtures are absent from the baseline
+  index. Six new detail-report presentation fixtures cover the default and all
+  five Apply Types. No unrelated fixtures were changed.
+- Deployment remains pending: install the new procedure and verify application
+  EXECUTE access before publishing this branch's frontend/backend. No production
+  SQL was run for this assignment. Deferred ICT work remains excluded.
+- Logs: `artifacts/voucher-details-{final-backend,frontend,browser,build,
+  excel-contracts,coverage}.log`. Unrelated README edits and graph artifacts remain
+  outside the commits.
+
 ## `feature/export-licence-item-columns`
 
 - Assignment date: 2026-11-09. Base: `main` at `d6963fc`. Implementation:
