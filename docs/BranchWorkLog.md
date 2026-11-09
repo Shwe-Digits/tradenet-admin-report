@@ -6,8 +6,8 @@ merge/deployment state. Add the newest assignment first.
 ## `feature/export-licence-item-columns`
 
 - Assignment date: 2026-11-09. Base: `main` at `d6963fc`. Implementation:
-  `0f97ffd`. Committed locally; not pushed, merged, or deployed. Deferred ICT
-  work remains on its own branch and is not included here.
+  `0f97ffd`. Branch published to origin; main merge and deployment pending.
+  Deferred ICT work remains on its own branch and is not included here.
 - Request: the November 6 forwarded email and `Export Reports.pdf` add HS Code,
   Description, and QTY after Company Address, before Currency, to Export Licence
   Cancellation, Amendment, and Actual Amendment reports. Table and Excel column
@@ -37,8 +37,12 @@ merge/deployment state. Add the newest assignment first.
   `sp_ActualAmendReport_pagination.sql`, and `sp_CancelReport_pagination.sql`
   before deploying the backend/frontend. Original non-pagination procedures and
   source data are unchanged. No scripts were installed on the shared database.
-  This branch starts from the requested `main`; separately deployed, unmerged
-  Turndown fixes must be reconciled before a future full-app deployment.
+  The existing deployed Turndown correction was preserved by merging
+  `fix/import-turndown-valid-remarks` in `a788554`; the ICT feature is excluded.
+- Release preparation on 2026-11-09: all 56 combined backend regression checks
+  and six focused frontend checks passed after that preservation merge. Preflight
+  confirmed the three live procedure definitions match pre-feature `main`.
+  Site rollback backup: `.deploy/pre-export-items-deploy-20261109-171234/`.
 - The pre-existing Frontend README changes and generated graph were preserved.
 
 ## `fix/import-turndown-valid-remarks`
