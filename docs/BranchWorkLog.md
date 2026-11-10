@@ -6,8 +6,9 @@ merge/deployment state. Add the newest assignment first.
 ## `feature/import-licence-voucher-details`
 
 - Assignment date: 2026-11-10. Base: `main` at `4ed1f4c`. Implementation commit:
-  `a299647`; exact-parity follow-up: `1fc779a`. Completed locally; not pushed,
-  merged, or deployed.
+  `a299647`; exact-parity follow-up: `1fc779a`. Branch published first, then
+  fast-forward merged into `main`; both remote heads verified at `1f8b4ad`.
+  SQL and application release deployed with user approval on 2026-11-10.
 - Request: add a separate Import Licence Voucher Detail Report using
   `AccountTitle.Description` and one row per `AccountTransactionDetail.Amount`,
   joined through the detail's own account transaction. Preserve the existing
@@ -39,9 +40,26 @@ merge/deployment state. Add the newest assignment first.
   fee values and row counts come from transaction details. All 12 detail/backend
   tests, 1,574 frontend checks, TypeScript checking, and the mocked Chrome test
   passed after this adjustment. Logs: `artifacts/voucher-details-parity-*.log`.
-- Deployment remains pending: install the new procedure and verify application
-  EXECUTE access before publishing this branch's frontend/backend. No production
-  SQL was run for this assignment. Deferred ICT work remains excluded.
+- Production SQL: installed only `sp_ImportLicenceVoucherDetailReport_pagination`;
+  application EXECUTE access verified. Hashes of nine original voucher, account
+  summary, Turndown, currency-footer and export-report procedures are unchanged.
+  No source table data was changed. A November sample voucher returns two fees
+  totalling 125,000, matching its source details and voucher total. The all-company
+  November 1-10 New report returns 2,450 fee rows totalling 125,390,000, independently
+  reconciled to source; its first-page query took approximately 2.5 seconds.
+- Site backups and rollback SQL: `.deploy/pre-voucher-details-deploy-20261110-174745/`.
+  Deployed backend version `1.0.0+1f8b4ad`; public frontend bundle
+  `/assets/index-BJICfGSu.js`. Binary and public asset hashes match the build,
+  API health and website return HTTP 200, and the new report/Excel routes return
+  HTTP 401 without login. Production appsettings and frontend web.config hashes
+  match the backups. Authenticated production browser/Excel execution was not
+  performed; browser behavior was tested with mocked responses and real SQL was
+  verified using the application account. Deferred ICT work remains excluded.
+- Release dependency audit was attempted but the npm registry audit endpoint
+  refused the connection (`ECONNREFUSED`); no dependency changes were introduced.
+  Build retained the existing nullable/Node engine/chunk-size warnings.
+  Operational logs: `.deploy/voucher-release/{preflight,backup,sql-install,
+  sql-verification,unfiltered-verification,deployment,site-verification}.log`.
 - Logs: `artifacts/voucher-details-{final-backend,frontend,browser,build,
   excel-contracts,coverage}.log`. Unrelated README edits and graph artifacts remain
   outside the commits.
