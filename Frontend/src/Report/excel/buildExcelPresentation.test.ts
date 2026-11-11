@@ -36,13 +36,19 @@ const ALIAS_CONFIG_KEYS = [
 
 /** Voucher configs whose column header texts depend on the ApplyType filter. */
 const VOUCHER_CONFIG_KEYS = [
+  'BorderExportLicenceVoucherDetailReport',
   'BorderExportLicenceVoucherReport',
+  'BorderExportPermitVoucherDetailReport',
   'BorderExportPermitVoucherReport',
+  'BorderImportLicenceVoucherDetailReport',
   'BorderImportLicenceVoucherReport',
+  'ExportLicenceVoucherDetailReport',
   'ExportLicenceVoucherReport',
+  'ExportPermitVoucherDetailReport',
   'ExportPermitVoucherReport',
   'ImportLicenceVoucherDetailReport',
   'ImportLicenceVoucherReport',
+  'ImportPermitVoucherDetailReport',
   'ImportPermitVoucherReport',
 ];
 

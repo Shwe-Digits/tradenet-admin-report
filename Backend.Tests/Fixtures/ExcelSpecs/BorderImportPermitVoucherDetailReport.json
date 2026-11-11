@@ -1,0 +1,82 @@
+{
+  "formatVersion": 1,
+  "configKey": "BorderImportPermitVoucherDetailReport",
+  "controllerName": "BorderImportPermitVoucherDetailReport",
+  "title": "Border Import Permit Voucher Detail Report",
+  "fileName": "BorderImportPermitVoucherDetailReport.xlsx",
+  "headerLines": [
+    "Border Import Permit Voucher Detail List (01/02/2026) To (28/02/2026)"
+  ],
+  "showRowNumber": true,
+  "rowNumberTitle": "No.",
+  "columns": [
+    {
+      "key": "Sakhan",
+      "dataIndex": "sakhanCode",
+      "title": "Sakhan"
+    },
+    {
+      "key": "LicenceNo",
+      "dataIndex": "licenceNo",
+      "title": "Licence No"
+    },
+    {
+      "key": "ApplicationDate",
+      "dataIndex": "applicationDate",
+      "title": "Application Date",
+      "dataType": "date"
+    },
+    {
+      "key": "ApplicationNo",
+      "dataIndex": "applicationNo",
+      "title": "Application No"
+    },
+    {
+      "key": "ParametersHeader2Value",
+      "dataIndex": "licenceNo",
+      "title": "Licence No"
+    },
+    {
+      "key": "ParametersHeader3Value",
+      "dataIndex": "sLicenceDate",
+      "title": "Licence Date"
+    },
+    {
+      "key": "CompanyRegistrationNo",
+      "dataIndex": "companyRegistrationNo",
+      "title": "Company Registration No"
+    },
+    {
+      "key": "CompanyName",
+      "dataIndex": "companyName",
+      "title": "Company Name"
+    },
+    {
+      "key": "VoucherNo",
+      "dataIndex": "voucherNo",
+      "title": "Voucher No"
+    },
+    {
+      "key": "VoucherDate",
+      "dataIndex": "voucherDate",
+      "title": "Voucher Date",
+      "dataType": "date"
+    },
+    {
+      "key": "CommodityType",
+      "dataIndex": "commodityType",
+      "title": "Commodity Type"
+    },
+    {
+      "key": "Description",
+      "dataIndex": "description",
+      "title": "Account Title Description"
+    },
+    {
+      "key": "Amount",
+      "dataIndex": "amount",
+      "title": "Amount",
+      "dataType": "number"
+    }
+  ]
+}

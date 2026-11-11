@@ -1,0 +1,86 @@
+{
+  "formatVersion": 1,
+  "configKey": "BorderExportPermitVoucherDetailReport",
+  "controllerName": "BorderExportPermitVoucherDetailReport",
+  "title": "Border Export Permit Voucher Detail Report",
+  "fileName": "BorderExportPermitVoucherDetailReport.xlsx",
+  "headerLines": [
+    "Border Export Permit Voucher Detail List (01/02/2026) To (28/02/2026)"
+  ],
+  "showRowNumber": true,
+  "rowNumberTitle": "No.",
+  "columns": [
+    {
+      "key": "Sakhan",
+      "dataIndex": "sakhanCode",
+      "title": "Sakhan"
+    },
+    {
+      "key": "OriginalLicenceNo",
+      "dataIndex": "oldLicenceNo",
+      "title": "Licence No",
+      "fallbackDataIndexes": [
+        "licenceNo"
+      ]
+    },
+    {
+      "key": "ApplicationDate",
+      "dataIndex": "applicationDate",
+      "title": "Application Date",
+      "dataType": "date"
+    },
+    {
+      "key": "ApplicationNo",
+      "dataIndex": "applicationNo",
+      "title": "Application No"
+    },
+    {
+      "key": "LicenceNo",
+      "dataIndex": "licenceNo",
+      "title": "Licence Extension No"
+    },
+    {
+      "key": "LicenceDate",
+      "dataIndex": "sLicenceDate",
+      "title": "Extension Date"
+    },
+    {
+      "key": "CompanyRegistrationNo",
+      "dataIndex": "companyRegistrationNo",
+      "title": "Company Registration No"
+    },
+    {
+      "key": "CompanyName",
+      "dataIndex": "companyName",
+      "title": "Company Name"
+    },
+    {
+      "key": "VoucherNo",
+      "dataIndex": "voucherNo",
+      "title": "Voucher No"
+    },
+    {
+      "key": "VoucherDate",
+      "dataIndex": "voucherDate",
+      "title": "Voucher Date",
+      "dataType": "date"
+    },
+    {
+      "key": "CommodityType",
+      "dataIndex": "commodityType",
+      "title": "Commodity Type"
+    },
+    {
+      "key": "Description",
+      "dataIndex": "description",
+      "title": "Account Title Description"
+    },
+    {
+      "key": "Amount",
+      "dataIndex": "amount",
+      "title": "Amount",
+      "dataType": "number",
+      "numberFormat": "#,##0"
+    }
+  ]
+}

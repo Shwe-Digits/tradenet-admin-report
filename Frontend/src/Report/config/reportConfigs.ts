@@ -14564,4 +14564,31 @@ reportConfigs.ImportLicenceVoucherDetailReport = {
   ),
 };
 
+// Each detail page inherits its own voucher report's full layout and filters.
+for (const family of [
+  'ImportPermit', 'ExportLicence', 'ExportPermit', 'BorderImportLicence',
+  'BorderImportPermit', 'BorderExportLicence', 'BorderExportPermit',
+]) {
+  const original = reportConfigs[`${family}VoucherReport`];
+  const name = `${family}VoucherDetailReport`;
+  reportConfigs[name] = {
+    ...original,
+    controllerName: name,
+    title: original.title.replace('Voucher', 'Voucher Detail'),
+    apiRoute: name,
+    excelRoute: `${name}/Excel`,
+    excelFileName: `${name}.xlsx`,
+    reportSubtitle: original.reportSubtitle
+      ? filters => original.reportSubtitle!(filters).replace('Voucher', 'Voucher Detail')
+      : undefined,
+    columns: original.columns.flatMap(column => column.dataIndex === 'amount'
+      ? [
+          { key: 'Description', dataIndex: 'description', title: 'Account Title Description' },
+          { ...column, title: 'Amount' },
+        ]
+      : [column]
+    ),
+  };
+}
+
 export const reportConfigList = Object.values(reportConfigs);
