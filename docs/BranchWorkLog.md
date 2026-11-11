@@ -6,8 +6,9 @@ merge/deployment state. Add the newest assignment first.
 ## `feature/all-voucher-detail-reports`
 
 - Assignment date: 2026-11-11. Base: `main` at `856694c`. Implementation commit:
-  `1798e53`. Branch pushed and remote hash verified. Merge, production SQL
-  installation and deployment remain pending.
+  `1798e53`. Branch published first, fast-forward merged into `main`, and both
+  remote heads verified at release `af94a1f`. Production SQL and application
+  deployment completed with user approval on 2026-11-11.
 - Scope: add Voucher Detail companions for Import Permit, Export Licence,
   Export Permit, Border Import Licence, Border Import Permit, Border Export
   Licence and Border Export Permit. Together with the already-live Oversea
@@ -36,10 +37,35 @@ merge/deployment state. Add the newest assignment first.
   Production frontend build passed with the existing chunk-size warning.
   Temporary Vite server stopped. Logs: `artifacts/all-voucher-details-{ui,
   final-ui,verified-backend,browser,build}.log`.
-- Operational note: install the new shared SP and verify application EXECUTE
-  access before publishing these frontend/backend changes. No production DB
-  changes or deployment were performed for this assignment. Deferred ICT work
-  stays excluded. Unrelated README edits and graph artifacts remain uncommitted.
+- Installed only the new shared SP; application EXECUTE access verified. Hashes
+  of ten original report procedures, including the live Import Licence detail
+  SP, are unchanged. Production samples for all seven families match the original
+  voucher fields and source fee descriptions/amounts, complete totals and paging.
+  Border Import Permit used a historical source sample because none existed in
+  November. No source table data was changed.
+- All-company November 1-11 New queries passed: Import Permit 14 fees, Export
+  Licence 3,515, Export Permit 26, Border Import Licence 421, Border Import Permit
+  0, Border Export Licence 85 and Border Export Permit 0. Empty results reflect
+  the corresponding source population. First-page timings ranged from 66 ms to
+  6.6 seconds, within the normal command timeout.
+- Rollback backup: `.deploy/pre-all-voucher-details-deploy-20261111-191022/`.
+  Deployed backend `1.0.0+af94a1f`, public bundle `/assets/index-BCx0Ysn4.js`.
+  Binary and public bundle hashes match the build; website and API health return
+  HTTP 200. All seven new report/Excel routes require login (HTTP 401), and the
+  existing Import Licence detail and voucher routes remain protected. Production
+  appsettings and frontend web.config hashes match backups. Production browser
+  authentication/Excel execution was not performed; mocked browser tests and real
+  SQL checks through the application account cover those separate paths.
+- Dependency audit completed for the unchanged lockfile: 44 findings (6 critical,
+  21 high, 13 moderate, 4 low), including development tools. No dependencies were
+  added or updated. The separate production-only audit request was refused by
+  the registry (`ECONNREFUSED`); runtime relevance of the findings remains to be
+  assessed separately. Logs: `artifacts/all-voucher-release-audit*` and
+  `artifacts/all-voucher-release-production-audit*`.
+- Operational logs: `.deploy/all-voucher-release/{preflight,backup,sql-install,
+  sql-verification,defaults-verification,deployment,site-verification}.log`.
+  Deferred ICT work stays excluded. Unrelated README edits and graph artifacts
+  remain uncommitted.
 
 ## `feature/import-licence-voucher-details`
 
