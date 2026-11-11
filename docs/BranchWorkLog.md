@@ -3,6 +3,44 @@
 This journal records which assignment was implemented on each branch and its actual
 merge/deployment state. Add the newest assignment first.
 
+## `feature/all-voucher-detail-reports`
+
+- Assignment date: 2026-11-11. Base: `main` at `856694c`. Implementation commit:
+  `1798e53`. Branch pushed and remote hash verified. Merge, production SQL
+  installation and deployment remain pending.
+- Scope: add Voucher Detail companions for Import Permit, Export Licence,
+  Export Permit, Border Import Licence, Border Import Permit, Border Export
+  Licence and Border Export Permit. Together with the already-live Oversea
+  Import Licence companion, all eight licence/permit families have a detail page.
+- Each new page inherits its own voucher report's filters, complete columns,
+  formatting, Apply Type headers, sorting, row numbering and footer placement.
+  Add Account Title Description and replace voucher totals with one fee row per
+  AccountTransactionDetail. Account transaction IDs keep each fee attached to
+  its own voucher; full filtered fee totals and stable paging include duplicate
+  fee amounts without multiplying fees by the number of goods items.
+- One new additive procedure: `StoredProcedureMigrations/sp_VoucherDetailReport_pagination.sql`.
+  It allowlists the seven report identities and sorting columns, parameterizes
+  search values, and preserves each original branch's date bounds, Apply Type
+  defaults, company/section/payment/Sakhan filters, goods values and currency
+  selection. Border Import/Export Licence retain Individual Trading support.
+  Existing voucher procedures and the live Import Licence detail implementation
+  were not modified. No Tradenet legacy API/admin changes were required.
+- Verification: all 72 focused backend behavior checks passed, including direct
+  comparisons to the original voucher SP for every other field, fee paging and
+  totals, streamed exports, Individual Trading, missing goods, date boundaries,
+  request defaults and injection checks, using disposable LocalDB databases.
+  Combined backend/Excel checks: 1,645 passed and one pre-existing failure for
+  the two missing Turndown fixture-index entries. Forty new Excel fixtures cover
+  all seven pages and their Apply Type variants; unrelated fixtures were restored.
+- All 1,864 frontend checks and seven mocked Chrome browser cases passed.
+  Production frontend build passed with the existing chunk-size warning.
+  Temporary Vite server stopped. Logs: `artifacts/all-voucher-details-{ui,
+  final-ui,verified-backend,browser,build}.log`.
+- Operational note: install the new shared SP and verify application EXECUTE
+  access before publishing these frontend/backend changes. No production DB
+  changes or deployment were performed for this assignment. Deferred ICT work
+  stays excluded. Unrelated README edits and graph artifacts remain uncommitted.
+
 ## `feature/import-licence-voucher-details`
 
 - Assignment date: 2026-11-10. Base: `main` at `4ed1f4c`. Implementation commit:
