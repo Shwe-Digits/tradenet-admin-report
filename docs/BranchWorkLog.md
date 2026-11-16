@@ -6,8 +6,9 @@ merge/deployment state. Add the newest assignment first.
 ## `fix/application-number-report-performance`
 
 - Assignment date: 2026-11-16. Base: `main` at `4921c92`. Implementation commit:
-  `d74fa7f`. Fix verified locally and through connection-scoped temporary procedures
-  against production data. Main merge and production procedure update await approval.
+  `d74fa7f`. Branch published first, fast-forward merged into `main`, and both
+  remote heads verified at `0513279`. Production procedure updated with explicit
+  user approval on 2026-11-16; no site rebuild or application restart was needed.
 - Root cause: date pages materialized all matching wide payment rows before paging.
   A November 1-16 trial built 54,386 rows and scanned both licence tables to return
   11 rows (10 visible plus look-ahead). Year searches took approximately 6.25 seconds.
@@ -41,11 +42,21 @@ merge/deployment state. Add the newest assignment first.
   (~0.94 s), suppressing columnstore (~4.0 s), and forcing an existing seek (~1.6 s).
   Only bounding candidates with timestamp ties achieved the retained improvement;
   no index hints or new indexes were kept.
-- Current production SP rollback and source hashes are prepared under
-  `.deploy/pre-application-number-performance-*/`. Operational checks are in
+- Post-deployment application-account first-page trials passed for day/week/month/year
+  ranges (three trials each; medians 145/76/65/73 ms, individual trials 58-165 ms).
+  All 21 comparisons against the saved previous procedure passed again. Historical
+  counts remain 343/131/212; application EXECUTE access and paging passed. All 13
+  other report procedure definition hashes remain unchanged. Deployed procedure
+  body matches the tested Git source after normalizing SQL Server's CREATE header;
+  installed definition SHA256: `FB466EC1A3641AC903A9C5C6B3BB46217C61597075B34670C434CACFDC237750`.
+  Website and API health return HTTP 200; a transient DNS lookup failure cleared
+  on retry. Authenticated production browser timing was not measured.
+- Rollback and pre-update hashes are preserved under
+  `.deploy/pre-application-number-performance-20261116-212617/`. Operational checks are in
   `.deploy/application-release/performance-*.log`; tests in
-  `artifacts/application-number-performance-{red,green}.log`. Production SP remains
-  unchanged pending approval. Unrelated README edits and graph artifacts are excluded.
+  `artifacts/application-number-performance-{red,green}.log`. No indexes, source
+  records or application binaries changed. Unrelated README edits and graph artifacts
+  remain excluded.
 
 ## `feature/application-number-report`
 
