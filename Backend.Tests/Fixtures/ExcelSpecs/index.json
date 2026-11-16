@@ -190,6 +190,21 @@
       "columnCount": 6
     },
     {
+      "configKey": "ApplicationNumberReport",
+      "controllerName": "ApplicationNumberReport",
+      "file": "ApplicationNumberReport.json",
+      "variant": null,
+      "hasDateRange": true,
+      "hasSingleDate": false,
+      "hasCurrencyTotalsColumns": false,
+      "showRowNumber": true,
+      "rowNumberTitle": "No",
+      "isBespokePage": false,
+      "isComposite": false,
+      "hasExcelButton": true,
+      "columnCount": 22
+    },
+    {
       "configKey": "BorderExportLicenceActualAmendmentReport",
       "controllerName": "BorderExportLicenceActualAmendmentReport",
       "file": "BorderExportLicenceActualAmendmentReport.json",

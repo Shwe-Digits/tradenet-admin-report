@@ -209,6 +209,7 @@ const reportCategoryDefinitions: ReportCategory[] = [
     matches: (controllerName) =>
       [
         'MPUReport',
+        'ApplicationNumberReport',
         'ChequeNoReport',
         'ChequeNoDetailReport',
         'OnlineFeesReport',

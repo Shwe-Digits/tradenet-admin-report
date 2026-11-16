@@ -1,0 +1,126 @@
+{
+  "formatVersion": 1,
+  "configKey": "ApplicationNumberReport",
+  "controllerName": "ApplicationNumberReport",
+  "title": "Application Number Report",
+  "fileName": "ApplicationNumberReport.xlsx",
+  "headerLines": [
+    "Application Number Report"
+  ],
+  "showRowNumber": true,
+  "rowNumberTitle": "No",
+  "columns": [
+    {
+      "key": "ApplicationNo",
+      "dataIndex": "applicationNo",
+      "title": "Application No"
+    },
+    {
+      "key": "Id",
+      "dataIndex": "id",
+      "title": "Payment Id"
+    },
+    {
+      "key": "TransactionId",
+      "dataIndex": "transactionId",
+      "title": "Transaction Id"
+    },
+    {
+      "key": "Sakhan",
+      "dataIndex": "sakhan",
+      "title": "Sakhan"
+    },
+    {
+      "key": "PaThaKaNo",
+      "dataIndex": "paThaKaNo",
+      "title": "Pa Tha Ka No"
+    },
+    {
+      "key": "ApplyType",
+      "dataIndex": "applyType",
+      "title": "Apply Type"
+    },
+    {
+      "key": "FormType",
+      "dataIndex": "formType",
+      "title": "Form Type"
+    },
+    {
+      "key": "MPUApplicationNo",
+      "dataIndex": "mpuApplicationNo",
+      "title": "MPU Application No"
+    },
+    {
+      "key": "InvoiceNo",
+      "dataIndex": "invoiceNo",
+      "title": "Invoice No"
+    },
+    {
+      "key": "MOCAmount",
+      "dataIndex": "mocAmount",
+      "title": "MOC Amount"
+    },
+    {
+      "key": "IMAmount",
+      "dataIndex": "imAmount",
+      "title": "IM Amount"
+    },
+    {
+      "key": "TransactionAmount",
+      "dataIndex": "transactionAmount",
+      "title": "Transaction Amount"
+    },
+    {
+      "key": "MerchantId",
+      "dataIndex": "merchantId",
+      "title": "Merchant Id"
+    },
+    {
+      "key": "ResponseCode",
+      "dataIndex": "responseCode",
+      "title": "Response Code"
+    },
+    {
+      "key": "AccountNo",
+      "dataIndex": "accountNo",
+      "title": "Account No"
+    },
+    {
+      "key": "TransactionRefNo",
+      "dataIndex": "transactionRefNo",
+      "title": "Transaction Ref No"
+    },
+    {
+      "key": "ApprovalCode",
+      "dataIndex": "approvalCode",
+      "title": "Approval Code"
+    },
+    {
+      "key": "TransactionDateTime",
+      "dataIndex": "transactionDateTime",
+      "title": "Transaction Date Time",
+      "dataType": "dateTime",
+      "dateFormat": "DD/MM/YYYY HH:mm:ss"
+    },
+    {
+      "key": "Status",
+      "dataIndex": "status",
+      "title": "Status"
+    },
+    {
+      "key": "FailReason",
+      "dataIndex": "failReason",
+      "title": "Fail Reason"
+    },
+    {
+      "key": "MemberId",
+      "dataIndex": "memberId",
+      "title": "Member Id"
+    },
+    {
+      "key": "PaymentType",
+      "dataIndex": "paymentType",
+      "title": "Payment Type"
+    }
+  ]
+}

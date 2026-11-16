@@ -137,6 +137,7 @@ import ListOfTopCapitalCompany from './Page/ListOfTopCapitalCompany';
 import ListOfValidAndInvalidCompany from './Page/ListOfValidAndInvalidCompany';
 import MemberRegistrationReport from './Page/MemberRegistrationReport';
 import MPUReport from './Page/MPUReport';
+import ApplicationNumberReport from './Page/ApplicationNumberReport';
 import MPUReportV3 from './Page/MPUReportV3';
 import OnlineFeesReport from './Page/OnlineFeesReport';
 import PaThaKaRegisteredBusinessOrganizationReport from './Page/PaThaKaRegisteredBusinessOrganizationReport';
@@ -332,6 +333,7 @@ export const reportRoutes = [
   { path: 'ListOfValidAndInvalidCompany', element: <ListOfValidAndInvalidCompany /> },
   { path: 'MemberRegistrationReport', element: <MemberRegistrationReport /> },
   { path: 'MPUReport', element: <MPUReport /> },
+  { path: 'ApplicationNumberReport', element: <ApplicationNumberReport /> },
   { path: 'MPUReportV3', element: <MPUReportV3 /> },
   { path: 'OnlineFeesReport', element: <OnlineFeesReport /> },
   { path: 'PaThaKaRegisteredBusinessOrganizationReport', element: <PaThaKaRegisteredBusinessOrganizationReport /> },
