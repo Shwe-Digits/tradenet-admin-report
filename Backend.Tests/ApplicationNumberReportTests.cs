@@ -1,4 +1,6 @@
 using System.Text.RegularExpressions;
+using System.Globalization;
+using System.Xml.Linq;
 using API.DBContext;
 using API.Model;
 using API.Service.ExcelExport;
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Data.SqlClient;
 
 namespace Backend.Tests;
 
@@ -104,6 +107,80 @@ public sealed class ApplicationNumberReportTests : IAsyncLifetime
         Assert.Equal("report-payment",ReportAccessPolicy.CategoryForController("ApplicationNumberReport"));
         Assert.True(ReportAccessPolicy.Create("Account User",Array.Empty<UserDetail>()).CanAccess("ApplicationNumberReport"));
         Assert.False(ReportAccessPolicy.Create("Report",new[]{new UserDetail{Type="Import Licence",SubType="Oversea"}}).CanAccess("ApplicationNumberReport"));
+    }
+
+    [Theory]
+    [InlineData("ASC")]
+    [InlineData("DESC")]
+    public async Task Date_pages_preserve_timestamp_ties_without_reading_the_entire_history(string direction)
+    {
+        await using var db=Db();
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE INDEX IX_PaymentDate ON dbo.MPUPaymentTransaction(TransactionDateTime)
+                INCLUDE(TransactionId,FormType,ApplicationNo,ResponseCode,Status);
+            WITH numbers AS (
+                SELECT TOP(25000) ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS n
+                FROM sys.all_objects a CROSS JOIN sys.all_objects b
+            )
+            INSERT dbo.MPUPaymentTransaction(Id,TransactionId,FormType,ApplicationNo,ResponseCode,Status,TransactionDateTime)
+            SELECT 100+n,CASE WHEN n%5=0 THEN 'border' ELSE 'oversea' END,
+                CASE WHEN n%5=0 THEN 'Border Import Licence' ELSE 'Import Licence' END,
+                CASE WHEN n%2=0 THEN NULL ELSE '' END,'00','AP',DATEADD(second,n/4,'2026-11-01')
+            FROM numbers;
+            """);
+        var expected=Enumerable.Range(1,25000);
+        var ordered=direction=="ASC" ? expected.OrderBy(n=>n/4) : expected.OrderByDescending(n=>n/4);
+        var expectedIds=ordered.ThenBy(n=>n).Take(11).Select(n=>n+100).ToArray();
+        var connection=(SqlConnection)db.Database.GetDbConnection();
+        await connection.OpenAsync();
+        await using var command=connection.CreateCommand();
+        command.CommandText="""
+            SET STATISTICS XML ON;
+            EXEC dbo.sp_ApplicationNumberReport_pagination @FromDate='2026-11-01',@ToDate='2026-12-01',
+                @SortColumn=N'TransactionDateTime',@SortOrder=@direction,@PageIndex=0,@PageSize=10,@IncludeTotalCount=0;
+            SET STATISTICS XML OFF;
+            """;
+        command.Parameters.AddWithValue("@direction",direction);
+        var ids=new List<int>();
+        var paymentRowsRead=0d;
+        XNamespace showplan="http://schemas.microsoft.com/sqlserver/2004/07/showplan";
+        await using(var reader=await command.ExecuteReaderAsync())
+        {
+            do
+            {
+                var isPlan=reader.FieldCount==1 && reader.GetName(0).Contains("Showplan",StringComparison.OrdinalIgnoreCase);
+                while(await reader.ReadAsync())
+                {
+                    if(isPlan)
+                    {
+                        var plan=XDocument.Parse(reader.GetString(0));
+                        foreach(var operation in plan.Descendants(showplan+"RelOp"))
+                        {
+                            var source=operation.Elements().SelectMany(element=>element.Elements(showplan+"Object"))
+                                .FirstOrDefault();
+                            if((string?)source?.Attribute("Table")!="[MPUPaymentTransaction]")continue;
+                            foreach(var counters in operation.Elements(showplan+"RunTimeInformation")
+                                .Elements(showplan+"RunTimeCountersPerThread"))
+                                paymentRowsRead+=double.Parse((string?)counters.Attribute("ActualRowsRead")??"0",CultureInfo.InvariantCulture);
+                        }
+                    }
+                    else if(reader.FieldCount>1)ids.Add(reader.GetInt32(reader.GetOrdinal("Id")));
+                }
+            }while(await reader.NextResultAsync());
+        }
+        Assert.Equal(expectedIds,ids);
+        Assert.InRange(paymentRowsRead,1,999);
+        await connection.CloseAsync();
+
+        var request=new ApplicationNumberReportRequest { FromDate=new(2026,11,1),ToDate=new(2026,12,1),
+            SortColumn="TransactionDateTime",SortOrder=direction,PageSize=10,IncludeTotalCount=false };
+        var controller=Controller(db);
+        var first=await Page(controller,request);
+        request.PageIndex=1;
+        var second=await Page(controller,request);
+        Assert.Equal(ordered.ThenBy(n=>n).Take(20).Select(n=>n+100),first.Data.Concat(second.Data).Select(row=>row.Id));
+        Assert.True(first.HasNextPage);
+        Assert.True(second.HasNextPage);
     }
     private sealed class Sink:IExcelRowSink
     {
