@@ -3,6 +3,50 @@
 This journal records which assignment was implemented on each branch and its actual
 merge/deployment state. Add the newest assignment first.
 
+## `fix/application-number-report-performance`
+
+- Assignment date: 2026-11-16. Base: `main` at `4921c92`. Implementation commit:
+  `d74fa7f`. Fix verified locally and through connection-scoped temporary procedures
+  against production data. Main merge and production procedure update await approval.
+- Root cause: date pages materialized all matching wide payment rows before paging.
+  A November 1-16 trial built 54,386 rows and scanned both licence tables to return
+  11 rows (10 visible plus look-ahead). Year searches took approximately 6.25 seconds.
+- Normal date-sorted fast pages now bound each family with TOP/WITH TIES, preserve
+  the original timestamp/Id/FormType ordering, page narrow keys, and retrieve full
+  payment fields only for the selected rows. Existing indexes suffice. Exact-count,
+  unpaged Excel and other-sort paths retain their existing implementation and cost.
+  No frontend, backend API, index or source table changes are required.
+- Repeated read-only first-page trials against the same November 16 end date:
+
+  | Range | Original median | Candidate median |
+  | --- | ---: | ---: |
+  | Day | 147 ms | 78 ms |
+  | Week | 904 ms | 78 ms |
+  | Month (31 days) | 1,661 ms | 130 ms |
+  | Year | 6,251 ms | 68 ms |
+
+  Original medians use two trials, candidates three. These are SQL client timings,
+  not authenticated browser/API timings or latency guarantees. Wider first pages
+  can be equally fast because execution stops when enough matches are found;
+  full counts, deep paging and exports still depend on matching data volume.
+- Seven focused backend tests passed. Two new LocalDB plan checks first failed
+  with 50,018 payment rows read, then passed with fewer than 1,000 on a 25,000-row
+  fixture, for both date directions. They also verify timestamp ties across family
+  boundaries, the look-ahead row and adjacent pages without skipped/duplicated rows.
+- All 21 old/new production-data comparisons matched every one of the 23 result
+  fields: both directions, all three family filters, historical exports/counts
+  (343/131/212), day/week/month/year pages, page 50 and empty results. Temporary
+  procedures exist only for the verification connection and are not deployed.
+- Rejected experiments: removing materialization alone (~1.2 s), narrow keys alone
+  (~0.94 s), suppressing columnstore (~4.0 s), and forcing an existing seek (~1.6 s).
+  Only bounding candidates with timestamp ties achieved the retained improvement;
+  no index hints or new indexes were kept.
+- Current production SP rollback and source hashes are prepared under
+  `.deploy/pre-application-number-performance-*/`. Operational checks are in
+  `.deploy/application-release/performance-*.log`; tests in
+  `artifacts/application-number-performance-{red,green}.log`. Production SP remains
+  unchanged pending approval. Unrelated README edits and graph artifacts are excluded.
+
 ## `feature/application-number-report`
 
 - Assignment date: 2026-11-16. Base: `main` at `811fe7c`. Implementation commit:
