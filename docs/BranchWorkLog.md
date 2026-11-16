@@ -6,8 +6,9 @@ merge/deployment state. Add the newest assignment first.
 ## `feature/application-number-report`
 
 - Assignment date: 2026-11-16. Base: `main` at `811fe7c`. Implementation commit:
-  `a9aa10e`. Feature branch published; main merge, production SP installation and
-  deployment remain pending.
+  `a9aa10e`. Feature branch published first, fast-forward merged into `main`,
+  and both remote heads verified at release `666b4b8`. Production SQL and site
+  deployment completed with user approval on 2026-11-16.
 - New Payment menu entry: **Application Number Report**. Includes successful MPU
   payments (`ResponseCode='00'`, `Status='AP'`) whose stored ApplicationNo is
   empty or NULL, joined by TransactionId to ImportLicence or BorderImportLicence.
@@ -20,14 +21,18 @@ merge/deployment state. Add the newest assignment first.
   the reference spreadsheet; the payment authentication hash is not exposed.
 - New additive SP: `StoredProcedureMigrations/sp_ApplicationNumberReport_pagination.sql`.
   Sorting is allowlisted, values parameterized, paging stable, and fast pages
-  fetch one look-ahead row. Install and verify application EXECUTE access before
-  deploying the new frontend/backend.
+  fetch one look-ahead row. Installed and verified application EXECUTE access
+  before deploying the new frontend/backend.
 - Verified the complete user-provided `updated.xlsx`: Border has 212 source rows
-  (205 missing numbers), Oversea 131 (119 missing), total 343 (324 missing).
-  Replayed all 343 rows through the new SP in disposable LocalDB: All 324,
-  Oversea 119, Border 205, exactly matching the mail. Spreadsheet numeric response
-  codes were normalized back to the mail's '00' for this replay. The 19 populated
-  MPU numbers remain excluded. Private workbook/replay data are not committed;
+  (205 empty cells, seven literal `NULL` markers), Oversea 131 (119 empty cells,
+  twelve literal `NULL` markers). The initial rehearsal mistakenly treated these
+  19 SQL-export markers as populated numbers and returned 324. Publishing preflight
+  identified the mistake: all 343 records have missing numbers when SQL NULLs
+  are included, as required. Corrected the private rehearsal's NULL-marker mapping;
+  the existing application SQL already handled SQL NULL correctly and was unchanged.
+  LocalDB replay now returns All 343, Oversea 131, Border 212, matching independent
+  production source queries. Numeric spreadsheet response codes were restored to
+  the mail's '00' for replay. Private workbook/replay data are not committed;
   the original workbook was not modified and temporary databases were dropped.
 - Five backend feature checks passed: missing/NULL and filled numbers, failed
   payments, repeated payments, exact timestamp boundaries, family filtering,
@@ -37,8 +42,30 @@ merge/deployment state. Add the newest assignment first.
   Backend Excel/access contracts: 1,585 passed, one existing coverage failure for
   missing Import/Border Import Turndown fixture-index entries. Only the new report
   fixture and its index entry were added. Logs: `artifacts/application-number-*.log`.
-- No production deployment/DB changes or legacy Tradenet API/admin changes for
-  this assignment. Unrelated README edits and graph artifacts remain uncommitted.
+- Installed only `dbo.sp_ApplicationNumberReport_pagination`; hashes of 13 existing
+  report procedures are unchanged. Production execution through the application
+  account returned All 343 (19 SQL NULLs), Oversea 131 (12 SQL NULLs) and Border
+  212 (seven SQL NULLs) for 2025-11-15 23:00:00 through 2025-11-16 23:00:00.
+  Recovered numbers, missing MPU numbers, successful payment conditions, source
+  joins and paging matched independent source queries. Query times: 78-256 ms.
+  No source table data was changed.
+- Rollback backup: `.deploy/pre-application-number-deploy-20261116-204544/`,
+  including the new-procedure rollback SQL. Deployed backend `1.0.0+666b4b8`,
+  public frontend bundle `/assets/index-BeZ_RybF.js`. Binary and public bundle
+  hashes match the build; website and API health return HTTP 200. New report and
+  Excel routes require login (HTTP 401), as do the checked existing MPU and voucher
+  detail routes. Production appsettings and frontend web.config match backups.
+  Authenticated production browser/Excel jobs were not executed; mocked Chrome
+  coverage and real production SQL checks verify those separate paths.
+- Deployment builds passed with existing backend nullable, Node engine and large
+  frontend chunk warnings. Dependency audit for the unchanged lockfile completed:
+  44 existing findings (six critical, 21 high, 13 moderate, four low), including
+  development tools; runtime relevance remains to be assessed separately. No
+  dependencies were added or changed. Log: `artifacts/application-release-audit.json`.
+- Operational logs: `.deploy/application-release/{preflight,backup,sql-install,
+  sql-verification,deployment,site-verification}.log`. No legacy Tradenet API/admin
+  changes. Deferred ICT work remains excluded. Unrelated README edits and graph
+  artifacts remain uncommitted.
 
 ## `feature/all-voucher-detail-reports`
 
