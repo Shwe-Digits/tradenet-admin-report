@@ -3,6 +3,43 @@
 This journal records which assignment was implemented on each branch and its actual
 merge/deployment state. Add the newest assignment first.
 
+## `feature/application-number-report`
+
+- Assignment date: 2026-11-16. Base: `main` at `811fe7c`. Implementation commit:
+  `a9aa10e`. Feature branch published; main merge, production SP installation and
+  deployment remain pending.
+- New Payment menu entry: **Application Number Report**. Includes successful MPU
+  payments (`ResponseCode='00'`, `Status='AP'`) whose stored ApplicationNo is
+  empty or NULL, joined by TransactionId to ImportLicence or BorderImportLicence.
+  Application No comes from the licence; MPU Application No remains a separate
+  column. Filters select exact inclusive From/To Date & Time and All/Oversea/Border.
+  Table and queued Excel share the same rows and sorting. No source data updates.
+- Uses existing Payment category access, including Account User permissions;
+  an Import Licence-only report user does not gain access. Existing MPU reports
+  and their procedures are unchanged. Monetary strings remain as stored, matching
+  the reference spreadsheet; the payment authentication hash is not exposed.
+- New additive SP: `StoredProcedureMigrations/sp_ApplicationNumberReport_pagination.sql`.
+  Sorting is allowlisted, values parameterized, paging stable, and fast pages
+  fetch one look-ahead row. Install and verify application EXECUTE access before
+  deploying the new frontend/backend.
+- Verified the complete user-provided `updated.xlsx`: Border has 212 source rows
+  (205 missing numbers), Oversea 131 (119 missing), total 343 (324 missing).
+  Replayed all 343 rows through the new SP in disposable LocalDB: All 324,
+  Oversea 119, Border 205, exactly matching the mail. Spreadsheet numeric response
+  codes were normalized back to the mail's '00' for this replay. The 19 populated
+  MPU numbers remain excluded. Private workbook/replay data are not committed;
+  the original workbook was not modified and temporary databases were dropped.
+- Five backend feature checks passed: missing/NULL and filled numbers, failed
+  payments, repeated payments, exact timestamp boundaries, family filtering,
+  pagination, streamed export, invalid requests, access and unchanged source data.
+  All 1,864 frontend checks and the mocked Chrome account-user report/Excel case
+  passed. Frontend build passed with the existing chunk-size warning; Vite stopped.
+  Backend Excel/access contracts: 1,585 passed, one existing coverage failure for
+  missing Import/Border Import Turndown fixture-index entries. Only the new report
+  fixture and its index entry were added. Logs: `artifacts/application-number-*.log`.
+- No production deployment/DB changes or legacy Tradenet API/admin changes for
+  this assignment. Unrelated README edits and graph artifacts remain uncommitted.
+
 ## `feature/all-voucher-detail-reports`
 
 - Assignment date: 2026-11-11. Base: `main` at `856694c`. Implementation commit:
