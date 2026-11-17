@@ -1,0 +1,83 @@
+{
+  "formatVersion": 1,
+  "configKey": "BorderExportPermitPendingReport",
+  "controllerName": "BorderExportPermitPendingReport",
+  "title": "Border Export Permit Pending Report",
+  "fileName": "BorderExportPermitPendingReport.xlsx",
+  "headerLines": [
+    "List of Border Export Permit Report (01/02/2026) To (28/02/2026)"
+  ],
+  "showRowNumber": true,
+  "rowNumberTitle": "No",
+  "columns": [
+    {
+      "key": "Section",
+      "dataIndex": "sectionName",
+      "title": "Section"
+    },
+    {
+      "key": "Status",
+      "dataIndex": "status",
+      "title": "Status"
+    },
+    {
+      "key": "ApplyType",
+      "dataIndex": "applyType",
+      "title": "Apply Type"
+    },
+    {
+      "key": "ApplicationNo",
+      "dataIndex": "applicationNo",
+      "title": "Application No"
+    },
+    {
+      "key": "ApplicationDate",
+      "dataIndex": "applicationDate",
+      "title": "Application Date",
+      "dataType": "date"
+    },
+    {
+      "key": "LicenceDate",
+      "dataIndex": "licenceDate",
+      "title": "Licence Date",
+      "dataType": "date"
+    },
+    {
+      "key": "CompanyRegistrationNo",
+      "dataIndex": "companyRegistrationNo",
+      "title": "Company Registration No"
+    },
+    {
+      "key": "CompanyName",
+      "dataIndex": "companyName",
+      "title": "Company Name"
+    },
+    {
+      "key": "CommodityType",
+      "dataIndex": "commodityType",
+      "title": "Commodity Type"
+    },
+    {
+      "key": "hsCode",
+      "dataIndex": "hsCode",
+      "title": "hsCode"
+    },
+    {
+      "key": "AdditionalDescription",
+      "dataIndex": "additionalDescription",
+      "title": "Additional Description"
+    },
+    {
+      "key": "Currency",
+      "dataIndex": "currency",
+      "title": "Currency"
+    },
+    {
+      "key": "TotalValue",
+      "dataIndex": "amount",
+      "title": "Total Value",
+      "dataType": "number",
+      "numberFormat": "#,##0.0000"
+    }
+  ]
+}

@@ -805,6 +805,21 @@
       "columnCount": 9
     },
     {
+      "configKey": "BorderExportPermitPendingReport",
+      "controllerName": "BorderExportPermitPendingReport",
+      "file": "BorderExportPermitPendingReport.json",
+      "variant": null,
+      "hasDateRange": true,
+      "hasSingleDate": false,
+      "hasCurrencyTotalsColumns": false,
+      "showRowNumber": true,
+      "rowNumberTitle": "No",
+      "isBespokePage": false,
+      "isComposite": false,
+      "hasExcelButton": true,
+      "columnCount": 13
+    },
+    {
       "configKey": "BorderExportPermitVoucherDetailReport",
       "controllerName": "BorderExportPermitVoucherDetailReport",
       "file": "BorderExportPermitVoucherDetailReport.ApplyType-Actual_Amend.json",
@@ -1613,6 +1628,21 @@
       "isComposite": false,
       "hasExcelButton": true,
       "columnCount": 9
+    },
+    {
+      "configKey": "BorderImportPermitPendingReport",
+      "controllerName": "BorderImportPermitPendingReport",
+      "file": "BorderImportPermitPendingReport.json",
+      "variant": null,
+      "hasDateRange": true,
+      "hasSingleDate": false,
+      "hasCurrencyTotalsColumns": false,
+      "showRowNumber": true,
+      "rowNumberTitle": "No.",
+      "isBespokePage": false,
+      "isComposite": false,
+      "hasExcelButton": true,
+      "columnCount": 13
     },
     {
       "configKey": "BorderImportPermitVoucherDetailReport",
@@ -2500,6 +2530,21 @@
       "columnCount": 10
     },
     {
+      "configKey": "ExportPermitPendingReport",
+      "controllerName": "ExportPermitPendingReport",
+      "file": "ExportPermitPendingReport.json",
+      "variant": null,
+      "hasDateRange": true,
+      "hasSingleDate": false,
+      "hasCurrencyTotalsColumns": false,
+      "showRowNumber": true,
+      "rowNumberTitle": "No",
+      "isBespokePage": false,
+      "isComposite": false,
+      "hasExcelButton": true,
+      "columnCount": 13
+    },
+    {
       "configKey": "ExportPermitVoucherDetailReport",
       "controllerName": "ExportPermitVoucherDetailReport",
       "file": "ExportPermitVoucherDetailReport.ApplyType-Actual_Amend.json",
@@ -3263,6 +3308,21 @@
       "isComposite": false,
       "hasExcelButton": true,
       "columnCount": 12
+    },
+    {
+      "configKey": "ImportPermitPendingReport",
+      "controllerName": "ImportPermitPendingReport",
+      "file": "ImportPermitPendingReport.json",
+      "variant": null,
+      "hasDateRange": true,
+      "hasSingleDate": false,
+      "hasCurrencyTotalsColumns": false,
+      "showRowNumber": true,
+      "rowNumberTitle": "No",
+      "isBespokePage": false,
+      "isComposite": false,
+      "hasExcelButton": true,
+      "columnCount": 13
     },
     {
       "configKey": "ImportPermitTotalValuePermitsReport",

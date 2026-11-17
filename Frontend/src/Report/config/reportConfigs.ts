@@ -14592,5 +14592,28 @@ for (const family of [
   };
 }
 
+// Permit pending pages share the licence layout and their own section lookups.
+for (const family of ['ImportPermit', 'ExportPermit', 'BorderImportPermit', 'BorderExportPermit']) {
+  const name = `${family}PendingReport`;
+  const title = family.replace(/([a-z])([A-Z])/g, '$1 $2');
+  reportConfigs[name] = {
+    ...reportConfigs.ImportLicencePendingReport,
+    controllerName: name,
+    title: `${title} Pending Report`,
+    apiRoute: name,
+    excelRoute: `${name}/Excel`,
+    excelFileName: `${name}.xlsx`,
+    reportSubtitle: importLicenceRangeSubtitle(`List of ${title} Report`),
+    filters: [
+      importLicenceDateRangeFilter,
+      {
+        ...importLicenceSectionFilter,
+        label: family.includes('Export') ? 'Export Section' : 'Import Section',
+        lookupName: `${family[0].toLowerCase()}${family.slice(1)}Sections`,
+      },
+    ],
+  };
+}
+
 reportConfigs.ApplicationNumberReport = applicationNumberReportConfig;
 export const reportConfigList = Object.values(reportConfigs);

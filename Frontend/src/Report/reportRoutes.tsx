@@ -1,4 +1,8 @@
-﻿import AccountSummaryReport from './Page/AccountSummaryReport';
+import BorderExportPermitPendingReport from './Page/BorderExportPermitPendingReport';
+import BorderImportPermitPendingReport from './Page/BorderImportPermitPendingReport';
+import ExportPermitPendingReport from './Page/ExportPermitPendingReport';
+import ImportPermitPendingReport from './Page/ImportPermitPendingReport';
+import AccountSummaryReport from './Page/AccountSummaryReport';
 import BorderExportLicenceActualAmendmentReport from './Page/BorderExportLicenceActualAmendmentReport';
 import BorderExportLicenceAmendmentReport from './Page/BorderExportLicenceAmendmentReport';
 import BorderExportLicenceByHSCodeReport from './Page/BorderExportLicenceByHSCodeReport';
@@ -334,6 +338,10 @@ export const reportRoutes = [
   { path: 'MemberRegistrationReport', element: <MemberRegistrationReport /> },
   { path: 'MPUReport', element: <MPUReport /> },
   { path: 'ApplicationNumberReport', element: <ApplicationNumberReport /> },
+  { path: 'BorderExportPermitPendingReport', element: <BorderExportPermitPendingReport /> },
+  { path: 'BorderImportPermitPendingReport', element: <BorderImportPermitPendingReport /> },
+  { path: 'ExportPermitPendingReport', element: <ExportPermitPendingReport /> },
+  { path: 'ImportPermitPendingReport', element: <ImportPermitPendingReport /> },
   { path: 'MPUReportV3', element: <MPUReportV3 /> },
   { path: 'OnlineFeesReport', element: <OnlineFeesReport /> },
   { path: 'PaThaKaRegisteredBusinessOrganizationReport', element: <PaThaKaRegisteredBusinessOrganizationReport /> },
