@@ -143,6 +143,11 @@ public sealed class PermitPendingReportTests : IAsyncLifetime
         Assert.Equal(new[]{family+"-1",family+"-3",family+"-2"},sink.Rows.Select(row=>row.ApplicationNo));
         Assert.Equal(typeof(sp_PendingReportResult),ExcelRowTypeResolver.Resolve(type));
         Assert.IsType<OkObjectResult>(await controller.Excel(request));
+        // The export worker probes footer/count metadata on a controller without HttpContext.
+        controller.ControllerContext=new ControllerContext();
+        request.IncludeTotalCount=true;
+        var headless=Assert.IsType<ApiResult<sp_PendingReportResult>>(Assert.IsType<OkObjectResult>((await controller.Post(request)).Result).Value);
+        Assert.Equal(3,headless.TotalCount);
         Assert.IsType<BadRequestObjectResult>((await controller.Post(null)).Result);
         request.ToDate=request.FromDate.AddDays(-1);
         Assert.IsType<BadRequestObjectResult>((await controller.Post(request)).Result);

@@ -38,7 +38,7 @@ public abstract class PermitPendingReportControllerBase : ControllerBase,IStream
         var pageIndex=Math.Max(0,request!.PageIndex);
         var pageSize=request.PageSize<=0 ? 10 : Math.Min(request.PageSize,1000);
         var rows=await sp_PermitPendingReport.ExecuteQueryable(_context,procedure!,request.SortColumn,request.SortOrder,
-            pageIndex,pageSize,request.IncludeTotalCount).ToListAsync(HttpContext.RequestAborted);
+            pageIndex,pageSize,request.IncludeTotalCount).ToListAsync();
         var data=rows.Select(row=>row.ToResult()).ToList();
         var result=request.IncludeTotalCount
             ? ApiResult<sp_PendingReportResult>.CreatePageFromRows(data,rows.FirstOrDefault()?.TotalCount??0,pageIndex,pageSize,
