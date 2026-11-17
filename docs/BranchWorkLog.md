@@ -3,6 +3,52 @@
 This journal records which assignment was implemented on each branch and its actual
 merge/deployment state. Add the newest assignment first.
 
+## `feature/permit-pending-reports`
+
+- Assignment date: 2026-11-17. Base: `main` at `b41d1a7`. Implementation commit:
+  `7b6952e`. Implementation and verification complete; publication, main merge,
+  production SP installation and application deployment are pending in this release.
+  The user explicitly authorized implementation and publication, including the SP.
+- Added Import Permit, Export Permit, Border Import Permit and Border Export Permit
+  Pending Reports under their existing family menus and access categories. Each
+  copies the Import Licence Pending table columns/formatting, with date and the
+  correct family-specific Import/Export Section lookup. Existing licence reports
+  and their procedures are unchanged. No legacy Tradenet API/admin changes.
+- Match existing Pending/Reject status rules and inclusive ApplicationDate bounds.
+  One row per application, deterministic first-item HS Code/description/currency,
+  and all-item Amount including repeated Id/different UniqueId records. Empty items
+  remain visible with zero amount. Grid and streamed Excel use the same new SP.
+- New additive `dbo.sp_PermitPendingReport_pagination` strictly maps four form types
+  to known tables, parameterizes values and allowlists sorting. Ordinary searches
+  page applications before item lookups/aggregation; exact counts run only when
+  requested. Sorting item-derived columns calculates those values before paging.
+  Dates/section predicates are sargable; existing indexes suffice. No new indexes
+  or source data updates are required.
+- Four config/menu checks and all four isolated Chrome browser flows passed;
+  browser requests were mocked. TypeScript check passed. Backend focused SQL,
+  controller, Excel streaming, access and performance checks passed (14 cases).
+  A 20,000-unrelated-item plan check reads fewer than 100 item rows for a first page.
+- Combined backend/Excel/access run: 1,623 passed, one pre-existing failure for the
+  two missing Turndown fixture-index entries. Full frontend run: 2,236 passed and
+  ten failures; the same ten failing tests were reproduced using the original main
+  config (old report expectations, Application Number numeric/payment lists, and
+  existing fixture drift). Only four new Excel fixtures/index entries were kept.
+  Local Node 18.17 cannot load Playwright's ESM config; the same checked-in tests
+  ran through an ignored CommonJS transpilation/config with installed Chrome.
+- Production-data rehearsal using connection-scoped temporary procedures matched
+  every field, count, full-export row and fast first page for all four families
+  over November, year and 2000-present ranges. November 1-17 source counts at
+  preflight: 34/15/0/0; year: 154/26/6/0; historical: 186/44/14/1, in family order
+  above. Border empty recent results are source data, not missing implementations.
+- Day/week/month/year first-page trials (two per range/family) took 37-517 ms,
+  with second trials 37-62 ms. Timings include SQL client overhead and compilation,
+  not authenticated production browser timing. Wider first pages may be equally
+  fast; counts, deep pages, item-derived sorting and full exports depend on volume.
+- Backup: `.deploy/pre-permit-pending-deploy-20261117-171812/`. Operational checks:
+  `.deploy/permit-pending-release/`; test logs: `artifacts/permit-pending-*.log`.
+  Fifteen existing SP hashes captured before deployment. Temporary Vite stopped.
+  Unrelated README edits and graph artifacts remain excluded.
+
 ## `fix/application-number-report-performance`
 
 - Assignment date: 2026-11-16. Base: `main` at `4921c92`. Implementation commit:
