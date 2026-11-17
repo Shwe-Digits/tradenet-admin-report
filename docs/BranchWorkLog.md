@@ -6,9 +6,10 @@ merge/deployment state. Add the newest assignment first.
 ## `feature/permit-pending-reports`
 
 - Assignment date: 2026-11-17. Base: `main` at `b41d1a7`. Implementation commit:
-  `7b6952e`. Implementation and verification complete; publication, main merge,
-  production SP installation and application deployment are pending in this release.
-  The user explicitly authorized implementation and publication, including the SP.
+  `7b6952e`; export-worker integration fix: `9377f5f`. Branch published first,
+  fast-forward merged into `main`, and both remote heads verified at `9377f5f`.
+  Production SP and site deployment completed on 2026-11-17 with the user's
+  explicit authorization to implement and publish, including the SP.
 - Added Import Permit, Export Permit, Border Import Permit and Border Export Permit
   Pending Reports under their existing family menus and access categories. Each
   copies the Import Licence Pending table columns/formatting, with date and the
@@ -28,6 +29,9 @@ merge/deployment state. Add the newest assignment first.
   browser requests were mocked. TypeScript check passed. Backend focused SQL,
   controller, Excel streaming, access and performance checks passed (14 cases).
   A 20,000-unrelated-item plan check reads fewer than 100 item rows for a first page.
+  Final worker integration checks reproduced null-context failures in four probes,
+  then passed after removing the web-context dependency from Post. All 14 focused
+  tests were rerun successfully, including exact-count probes without HttpContext.
 - Combined backend/Excel/access run: 1,623 passed, one pre-existing failure for the
   two missing Turndown fixture-index entries. Full frontend run: 2,236 passed and
   ten failures; the same ten failing tests were reproduced using the original main
@@ -44,9 +48,31 @@ merge/deployment state. Add the newest assignment first.
   with second trials 37-62 ms. Timings include SQL client overhead and compilation,
   not authenticated production browser timing. Wider first pages may be equally
   fast; counts, deep pages, item-derived sorting and full exports depend on volume.
+- Installed only the new SP and verified application EXECUTE access. All 15 existing
+  report procedure hashes remain unchanged, including licence pending and the
+  optimized Application Number SP. The installed body matches tested source. All
+  production field/count/export/fast-page comparisons passed again; live status
+  changes reduced Export Permit counts to 14/25/43 in November/year/historical
+  ranges, matching independent source queries at verification time. No source
+  records were updated by this deployment. Post-install first-page trials across
+  all four families and day/week/month/year ranges took 33-70 ms (32 executions).
+- Published backend `1.0.0+9377f5f` and frontend `/assets/index-DPqy6MoO.js`.
+  Binary and downloaded public bundle hashes match the build; website and API
+  health return HTTP 200. All eight new report/Excel routes require login (HTTP 401),
+  as do the checked existing licence pending and Application Number routes.
+  Production appsettings and frontend web.config match backups. Authenticated
+  production browser/queued Excel jobs were not executed; isolated browser,
+  LocalDB worker/streaming and real production SQL checks cover those paths.
+- Initial app publication was interrupted before frontend copy to fix the worker
+  integration issue; corrected publication completed successfully. Final build
+  passed with existing nullable, Node engine and frontend chunk warnings. npm
+  reported the unchanged 44 dependency findings (six critical, 21 high, 13 moderate,
+  four low, including development tools); no packages or lockfile changes were made.
 - Backup: `.deploy/pre-permit-pending-deploy-20261117-171812/`. Operational checks:
   `.deploy/permit-pending-release/`; test logs: `artifacts/permit-pending-*.log`.
-  Fifteen existing SP hashes captured before deployment. Temporary Vite stopped.
+  Final logs: `deployment-final.log`, `site-verification.log`, `sql-verification.log`
+  and `live-perf-*.log`. Rollback SQL drops only the new SP after reverting the app.
+  Temporary Vite stopped. Deferred ICT work remains excluded.
   Unrelated README edits and graph artifacts remain excluded.
 
 ## `fix/application-number-report-performance`
