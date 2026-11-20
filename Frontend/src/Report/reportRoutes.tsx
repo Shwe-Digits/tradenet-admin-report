@@ -143,6 +143,7 @@ import MemberRegistrationReport from './Page/MemberRegistrationReport';
 import MPUReport from './Page/MPUReport';
 import ApplicationNumberReport from './Page/ApplicationNumberReport';
 import MPUReportV3 from './Page/MPUReportV3';
+import MPUReportV4 from './Page/MPUReportV4';
 import OnlineFeesReport from './Page/OnlineFeesReport';
 import PaThaKaRegisteredBusinessOrganizationReport from './Page/PaThaKaRegisteredBusinessOrganizationReport';
 import RegistrationByBusinessType from './Page/RegistrationByBusinessType';
@@ -343,6 +344,7 @@ export const reportRoutes = [
   { path: 'ExportPermitPendingReport', element: <ExportPermitPendingReport /> },
   { path: 'ImportPermitPendingReport', element: <ImportPermitPendingReport /> },
   { path: 'MPUReportV3', element: <MPUReportV3 /> },
+  { path: 'MPUReportV4', element: <MPUReportV4 /> },
   { path: 'OnlineFeesReport', element: <OnlineFeesReport /> },
   { path: 'PaThaKaRegisteredBusinessOrganizationReport', element: <PaThaKaRegisteredBusinessOrganizationReport /> },
   { path: 'RegistrationByBusinessType', element: <RegistrationByBusinessType /> },

@@ -1,0 +1,128 @@
+{
+  "formatVersion": 1,
+  "configKey": "MPUReportV4",
+  "controllerName": "MPUReportV4",
+  "title": "MPU Report V4",
+  "fileName": "MPUReportV4.xlsx",
+  "headerLines": [
+    "MPU Report (01/02/2026) To (28/02/2026)"
+  ],
+  "showRowNumber": true,
+  "rowNumberTitle": "No",
+  "columns": [
+    {
+      "key": "Sakhan",
+      "dataIndex": "sakhan",
+      "title": "Sakhan"
+    },
+    {
+      "key": "CompanyName",
+      "dataIndex": "companyName",
+      "title": "Company Name"
+    },
+    {
+      "key": "CompanyRegistrationNo",
+      "dataIndex": "companyRegistrationNo",
+      "title": "Company Registration No"
+    },
+    {
+      "key": "ApplicationNo",
+      "dataIndex": "applicationNo",
+      "title": "Application No"
+    },
+    {
+      "key": "LicenceApplicationNo",
+      "dataIndex": "licenceApplicationNo",
+      "title": "Licence Application No"
+    },
+    {
+      "key": "TrxnDate",
+      "dataIndex": "transactionDateTime",
+      "title": "Trxn Date",
+      "dataType": "dateTime",
+      "dateFormat": "MM/DD/YYYY HH:mm:ss"
+    },
+    {
+      "key": "FormType",
+      "dataIndex": "formType",
+      "title": "Form Type"
+    },
+    {
+      "key": "ApplicationType",
+      "dataIndex": "applyType",
+      "title": "Application Type"
+    },
+    {
+      "key": "MID",
+      "dataIndex": "merchantId",
+      "title": "MID"
+    },
+    {
+      "key": "CardNo",
+      "dataIndex": "accountNo",
+      "title": "Card No"
+    },
+    {
+      "key": "InvoiceNo",
+      "dataIndex": "invoiceNo",
+      "title": "Invoice No"
+    },
+    {
+      "key": "APPCode",
+      "dataIndex": "approvalCode",
+      "title": "APP Code"
+    },
+    {
+      "key": "TrxnRefNo",
+      "dataIndex": "transactionRefNo",
+      "title": "Trxn Ref No."
+    },
+    {
+      "key": "TrxnAmount",
+      "dataIndex": "transactionAmount",
+      "title": "Trxn Amount",
+      "dataType": "money",
+      "numberFormat": "0.####"
+    },
+    {
+      "key": "MOC",
+      "dataIndex": "mocAmount",
+      "title": "MOC",
+      "dataType": "money",
+      "numberFormat": "0.####"
+    },
+    {
+      "key": "IM",
+      "dataIndex": "imAmount",
+      "title": "IM",
+      "dataType": "money",
+      "numberFormat": "0.####"
+    },
+    {
+      "key": "MPU",
+      "dataIndex": "mpuAmount",
+      "title": "MPU",
+      "dataType": "money",
+      "numberFormat": "0.####"
+    },
+    {
+      "key": "VoucherNo",
+      "dataIndex": "voucherNo",
+      "title": "Voucher No"
+    },
+    {
+      "key": "TotalAmount",
+      "dataIndex": "totalAmount",
+      "title": "Total Amount",
+      "dataType": "money",
+      "numberFormat": "0.####"
+    },
+    {
+      "key": "AmountDiff",
+      "dataIndex": "amountDiff",
+      "title": "Amount Diff",
+      "dataType": "money",
+      "numberFormat": "0.####"
+    }
+  ]
+}

@@ -215,6 +215,7 @@ const reportCategoryDefinitions: ReportCategory[] = [
         'OnlineFeesReport',
         'AccountSummaryReport',
         'MPUReportV3',
+        'MPUReportV4',
       ].includes(controllerName),
   },
   {

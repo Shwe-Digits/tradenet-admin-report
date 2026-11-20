@@ -16,7 +16,7 @@ public sealed class sp_MPUReport_V3Request
     public string PaymentType { get; set; } = string.Empty;
 }
 
-public sealed class sp_MPUReport_V3Result
+public class sp_MPUReport_V3Result
 {
     public int Id { get; set; }
     public string? Sakhan { get; set; }
@@ -41,7 +41,7 @@ public sealed class sp_MPUReport_V3Result
     public DateTime? PaymentDate { get; set; }
 }
 
-public sealed class sp_MPUReport_V3Row
+public class sp_MPUReport_V3Row
 {
     public int Id { get; set; }
     public string? Sakhan { get; set; }
@@ -66,7 +66,9 @@ public sealed class sp_MPUReport_V3Row
     public DateTime? PaymentDate { get; set; }
     public int? TotalCount { get; set; }
 
-    public sp_MPUReport_V3Result ToResult() => new()
+    public sp_MPUReport_V3Result ToResult() => ToResult<sp_MPUReport_V3Result>();
+
+    protected TResult ToResult<TResult>() where TResult : sp_MPUReport_V3Result, new() => new()
     {
         Id = Id,
         Sakhan = Sakhan,
@@ -114,7 +116,7 @@ public sealed class sp_MPUReport_V3ColumnTotals
 
 public static class sp_MPUReport_V3
 {
-    private const int CommandTimeoutSeconds = 180;
+    internal const int CommandTimeoutSeconds = 180;
 
     public static async Task<List<sp_MPUReport_V3Row>> ExecuteAsync(
         TradeNetDbContext db,
@@ -151,8 +153,19 @@ public static class sp_MPUReport_V3
         ArgumentNullException.ThrowIfNull(db);
         ArgumentNullException.ThrowIfNull(request);
 
-        var parameters = new[]
-        {
+        const string sql =
+            "EXEC dbo.sp_MPUReport_V3_pagination @FromDate, @ToDate, @FormType, @PaymentType, " +
+            "@SortColumn, @SortOrder, @PageIndex, @PageSize, @IncludeTotalCount";
+
+        db.Database.SetCommandTimeout(CommandTimeoutSeconds);
+
+        return db.Database.SqlQueryRaw<sp_MPUReport_V3Row>(sql,
+            CreatePageParameters(request, sortColumn, sortOrder, pageIndex, pageSize, includeTotalCount));
+    }
+
+    internal static SqlParameter[] CreatePageParameters(sp_MPUReport_V3Request request, string? sortColumn,
+        string? sortOrder, int? pageIndex, int? pageSize, bool includeTotalCount) =>
+        [
             new SqlParameter("@FromDate", request.FromDate),
             new SqlParameter("@ToDate", request.ToDate),
             new SqlParameter("@FormType", request.FormType ?? string.Empty),
@@ -162,16 +175,7 @@ public static class sp_MPUReport_V3
             new SqlParameter("@PageIndex", (object?)pageIndex ?? DBNull.Value),
             new SqlParameter("@PageSize", (object?)pageSize ?? DBNull.Value),
             new SqlParameter("@IncludeTotalCount", includeTotalCount),
-        };
-
-        const string sql =
-            "EXEC dbo.sp_MPUReport_V3_pagination @FromDate, @ToDate, @FormType, @PaymentType, " +
-            "@SortColumn, @SortOrder, @PageIndex, @PageSize, @IncludeTotalCount";
-
-        db.Database.SetCommandTimeout(CommandTimeoutSeconds);
-
-        return db.Database.SqlQueryRaw<sp_MPUReport_V3Row>(sql, parameters);
-    }
+        ];
 
     public static async Task<IReadOnlyDictionary<string, decimal>> ExecuteColumnTotalsAsync(
         TradeNetDbContext db,

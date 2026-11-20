@@ -14615,5 +14615,19 @@ for (const family of ['ImportPermit', 'ExportPermit', 'BorderImportPermit', 'Bor
   };
 }
 
+reportConfigs.MPUReportV4 = {
+  ...reportConfigs.MPUReportV3,
+  controllerName: 'MPUReportV4',
+  title: 'MPU Report V4',
+  apiRoute: 'MPUReportV4',
+  excelRoute: 'MPUReportV4/Excel',
+  excelFileName: 'MPUReportV4.xlsx',
+  columns: reportConfigs.MPUReportV3.columns.flatMap(column =>
+    column.key === 'ApplicationNo'
+      ? [column, { key: 'LicenceApplicationNo', dataIndex: 'licenceApplicationNo', title: 'Licence Application No' }]
+      : [column]
+  ),
+};
+
 reportConfigs.ApplicationNumberReport = applicationNumberReportConfig;
 export const reportConfigList = Object.values(reportConfigs);

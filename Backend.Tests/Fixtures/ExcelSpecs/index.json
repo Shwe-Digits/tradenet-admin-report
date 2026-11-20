@@ -3655,6 +3655,21 @@
       "columnCount": 19
     },
     {
+      "configKey": "MPUReportV4",
+      "controllerName": "MPUReportV4",
+      "file": "MPUReportV4.json",
+      "variant": null,
+      "hasDateRange": true,
+      "hasSingleDate": false,
+      "hasCurrencyTotalsColumns": false,
+      "showRowNumber": true,
+      "rowNumberTitle": "No",
+      "isBespokePage": false,
+      "isComposite": false,
+      "hasExcelButton": true,
+      "columnCount": 20
+    },
+    {
       "configKey": "MemberRegistrationReport",
       "controllerName": "MemberRegistrationReport",
       "file": "MemberRegistrationReport.json",

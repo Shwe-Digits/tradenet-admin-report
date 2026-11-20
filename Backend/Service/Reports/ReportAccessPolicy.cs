@@ -133,7 +133,7 @@ public sealed class ReportAccessPolicy
 
     private static readonly HashSet<string> PaymentControllers = new(StringComparer.Ordinal)
     {
-        "MPUReport", "MPUReportV3", "ApplicationNumberReport", "ChequeNoReport", "ChequeNoDetailReport",
+        "MPUReport", "MPUReportV3", "MPUReportV4", "ApplicationNumberReport", "ChequeNoReport", "ChequeNoDetailReport",
         "OnlineFeesReport", "AccountSummaryReport",
     };
 }

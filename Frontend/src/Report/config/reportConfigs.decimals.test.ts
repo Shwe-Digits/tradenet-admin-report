@@ -24,6 +24,7 @@ const PAYMENT = new Set([
   'ChequeNoReport',
   'MPUReport',
   'MPUReportV3',
+  'MPUReportV4',
   'OnlineFeesReport',
 ]);
 
