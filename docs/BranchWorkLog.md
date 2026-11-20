@@ -3,6 +3,26 @@
 This journal records which assignment was implemented on each branch and its actual
 merge/deployment state. Add the newest assignment first.
 
+## `feature/mpu-report-v4`
+
+- Assignment date: 2026-11-20. Base: `main` at `8a3bbb6`. Implementation commit:
+  `108e41b`. Implemented and verified locally on the feature branch, pending push,
+  merge and production deployment.
+- Payment → **MPU Report V4** keeps the V3 filters, payment and voucher matching,
+  amounts and totals. The grid and Excel add **Licence Application No** immediately
+  after **Application No**. The new field resolves the matching Oversea or Border
+  Import Licence by transaction ID and is blank when the lookup does not apply.
+  The existing payment application number is returned independently.
+- Install `StoredProcedureMigrations/sp_MPUReport_V4_pagination.sql` and verify
+  application EXECUTE access before publishing the app. V4 normally looks up licence
+  numbers after selecting the page. Sorting by the new column needs the lookup before
+  paging. Existing V3 and Application Number Report procedures are independent.
+- LocalDB verified field-by-field V3 parity, repeat-voucher pairing, new-column sorting,
+  counts, footer totals and streamed Excel. Twelve backend feature/access and 18
+  frontend Payment/menu tests passed. The frontend build and a mocked Chrome grid and
+  Excel request passed. Excel contracts had 1,609 passes and one existing failure for
+  the two missing Turndown fixture index entries. Logs: `artifacts/mpu-v4-*.log`.
+
 ## `feature/permit-pending-reports`
 
 - Assignment date: 2026-11-17. Base: `main` at `b41d1a7`. Implementation commit:
