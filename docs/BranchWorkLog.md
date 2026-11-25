@@ -6,8 +6,9 @@ merge/deployment state. Add the newest assignment first.
 ## `fix/mpu-report-v4-performance`
 
 - Base: `main` at `559db48`. Implementation commit: `db8aa97`. Verified locally
-  and on production data through a connection-scoped temporary procedure. Push,
-  merge, and production deployment are pending.
+  and on production data through a connection-scoped temporary procedure. The fix
+  branch was published and fast-forward merged into `main`. Both remote heads were
+  verified at `f177244` before the authorized SQL deployment on 2026-11-25.
 - The old first page paired full transaction histories and enriched up to 119,986
   matched rows for the 30-day sample. The new fast path pairs only the first sorted
   payment candidates. It still numbers the full history for each selected transaction
@@ -26,8 +27,17 @@ merge/deployment state. Add the newest assignment first.
   MPU/Citizen Pay filters and deep offsets. All 13 focused LocalDB and access tests
   passed, including a sparse-prefix fallback with 100 unpaired payments.
 - Operational logs: `.deploy/mpu-v4-performance/`. Backend test log:
-  `artifacts/mpu-v4-performance-final-tests.log`. Production publication would be
-  a SQL-only update to `dbo.sp_MPUReport_V4_pagination`.
+  `artifacts/mpu-v4-performance-final-tests.log`.
+- Production received a SQL-only update to `dbo.sp_MPUReport_V4_pagination`.
+  The deployed definition matches tracked source. Application EXECUTE access
+  and site/API health passed. The four checked related procedure hashes matched
+  the preflight snapshot. The application did not need a restart or rebuild.
+- All 12 live comparisons against the saved procedure matched all 23 fields and
+  order. First-page SQL times were 176/340/510/576 ms for day/week/month/year.
+  These are single paired SQL trials rather than authenticated browser timings.
+  Rollback: `.deploy/pre-mpu-v4-performance-20261125-133957/rollback.sql`.
+  Final logs: `release-deployment.log`, `release-verification.log`, and
+  `release-parity.log` in the operational log directory above.
 
 ## `feature/mpu-report-v4`
 
