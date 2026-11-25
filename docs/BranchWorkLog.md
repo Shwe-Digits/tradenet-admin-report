@@ -6,14 +6,15 @@ merge/deployment state. Add the newest assignment first.
 ## `feature/mpu-report-v4`
 
 - Assignment date: 2026-11-20. Base: `main` at `8a3bbb6`. Implementation commit:
-  `108e41b`. Implemented and verified locally on the feature branch, pending push,
-  merge and production deployment.
+  `108e41b`. Branch published first and fast-forward merged into `main`. Both
+  remote heads were verified at `1c02b3c` before deployment. The user authorized
+  publication, completed on 2026-11-25.
 - Payment → **MPU Report V4** keeps the V3 filters, payment and voucher matching,
   amounts and totals. The grid and Excel add **Licence Application No** immediately
   after **Application No**. The new field resolves the matching Oversea or Border
   Import Licence by transaction ID and is blank when the lookup does not apply.
   The existing payment application number is returned independently.
-- Install `StoredProcedureMigrations/sp_MPUReport_V4_pagination.sql` and verify
+- Installed `StoredProcedureMigrations/sp_MPUReport_V4_pagination.sql` and verified
   application EXECUTE access before publishing the app. V4 normally looks up licence
   numbers after selecting the page. Sorting by the new column needs the lookup before
   paging. Existing V3 and Application Number Report procedures are independent.
@@ -22,6 +23,22 @@ merge/deployment state. Add the newest assignment first.
   frontend Payment/menu tests passed. The frontend build and a mocked Chrome grid and
   Excel request passed. Excel contracts had 1,609 passes and one existing failure for
   the two missing Turndown fixture index entries. Logs: `artifacts/mpu-v4-*.log`.
+- Before and after installation, all 494 rows for 2025-11-15 23:00 through
+  2025-11-16 23:00 matched V3 fields and order. Independent source lookups verified
+  161 Oversea and 248 Border Import Licence numbers, including 343 recovered with
+  blank payment numbers. Three production first-page parity checks took 47-63 ms
+  for V4. The full V4 query took 200 ms. Sorting by the new field and look-ahead
+  passed. The installed SP matches source and all 16 existing procedure hashes
+  match preflight. Source records were untouched.
+- Deployed backend `1.0.0+1c02b3c` and frontend `/assets/index-DnspAsrk.js`.
+  Website and API health returned HTTP 200. Live release file hashes matched and
+  both V4 report/Excel endpoints required login. A browser test used the published
+  frontend with simulated Payment access and API responses and verified menu
+  visibility, the grid and the Excel request. No production Excel job was queued.
+- Rollback files are in `.deploy/pre-mpu-v4-deploy-20261125-091610/`. Release logs
+  are in `.deploy/mpu-v4-release/`. Build passed with existing compiler and Node
+  warnings. npm reported the same 44 dependency findings against the unchanged
+  lockfile. Local README edits and project graph artifacts remain excluded.
 
 ## `feature/permit-pending-reports`
 
