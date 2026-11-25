@@ -42,162 +42,222 @@ BEGIN
     ELSE
         SET @ob = N'[TransactionId] ASC, [TransactionDateTime] ASC, [Id] ASC';
 
-    -- MPUPaymentTransaction has no foreign key to AccountTransaction: the only link is
-    -- the shared application id, one-to-many on both sides, so the voucher is found by
-    -- pairing the Nth successful card charge with the Nth payment record. Two rules keep
-    -- that pairing honest, and breaking either is what the 2026-09-17 ငွေစာရင်း complaint
-    -- ("MPU Report V3 မှာ ပြနေတဲ့ voucher no တွေက မှားနေပါတယ်") was reporting:
-    --
-    --   1. Both sequences must be numbered over the SAME universe the pairing assumes —
-    --      successful charges against payment vouchers — or the two ordinals mean
-    --      different things.
-    --   2. Neither may be numbered over the REPORT'S filtered rows. Numbering after the
-    --      date window made a row's voucher depend on the range the user picked: the same
-    --      charge read U01... over one week and U02... over two months (measured on PROD,
-    --      2025-02, 8 of 112 rows), and 5-7% of rows showed a voucher from a different
-    --      month entirely -- a February charge printing an April 2024 voucher.
-    --
-    -- So: pick the applications the filters select, number their WHOLE history, and only
-    -- then narrow to the rows the report shows.
-    SELECT DISTINCT m.TransactionId
-    INTO #ids
-    FROM dbo.MPUPaymentTransaction m
-    WHERE m.TransactionDateTime >= @FromDate
-        AND m.TransactionDateTime <= @ToDate
-        AND m.ResponseCode = '00'
-        AND m.FormType IS NOT NULL
-        AND m.FormType LIKE (CASE WHEN @FormType = '' THEN m.FormType + '%' ELSE @FormType + '%' END)
-        AND (@PaymentType = ''
-            OR m.PaymentType = @PaymentType
-            OR (@PaymentType = 'CitizenPay'
-                AND REPLACE(REPLACE(REPLACE(LOWER(ISNULL(m.PaymentType, '')), ' ', ''), '-', ''), '_', '')
-                    IN ('citizenpay', 'citizen', 'cp')));
+    -- A payment-sorted page can start with a bounded prefix of payment candidates.
+    -- Pair every selected application using its whole history, then keep only the
+    -- candidate rows. If there are too few matches, retry once with the full range.
+    DECLARE @needed bigint = CAST(@off AS bigint) + @ps;
+    DECLARE @candidateLimit int = CASE WHEN @IncludeTotalCount = 0 AND @PageSize > 0
+        AND @needed BETWEEN 1 AND 128
+        AND (@SortColumn IS NULL OR @SortColumn IN (
+            N'Id', N'Sakhan', N'TransactionDateTime', N'ApplicationNo', N'FormType', N'ApplyType',
+            N'MerchantId', N'AccountNo', N'InvoiceNo', N'ApprovalCode', N'TransactionRefNo', N'MOCAmount', N'IMAmount'))
+        THEN CAST(@needed * 8 AS int) END;
 
-    CREATE INDEX IX_ids_TransactionId ON #ids(TransactionId);
+    SELECT TOP (0) m.Id + 0 AS Id, m.TransactionId
+    INTO #reportPayments FROM dbo.MPUPaymentTransaction m;
+    CREATE UNIQUE CLUSTERED INDEX IX_reportPayments_Id ON #reportPayments(Id);
 
-    -- Every successful charge of those applications, whenever it happened. A failed
-    -- attempt creates no AccountTransaction, so it must not consume an ordinal.
-    SELECT
-        m.*,
-        ROW_NUMBER() OVER (
-            PARTITION BY m.TransactionId
-            ORDER BY m.TransactionDateTime, m.Id
-        ) AS rn
-    INTO #mpuAll
-    FROM dbo.MPUPaymentTransaction m
-    WHERE m.ResponseCode = '00'
-        AND EXISTS (SELECT 1 FROM #ids i WHERE i.TransactionId = m.TransactionId);
+    SELECT TOP (0) m.TransactionId INTO #ids FROM dbo.MPUPaymentTransaction m;
 
-    CREATE INDEX IX_mpuAll_TransactionId_rn ON #mpuAll(TransactionId, rn);
+    DECLARE @selectPayments nvarchar(max) = N' Id, TransactionId
+        FROM dbo.MPUPaymentTransaction m
+        WHERE m.TransactionDateTime >= @FromDate AND m.TransactionDateTime <= @ToDate
+            AND m.ResponseCode = N''00''
+            AND m.TransactionId IS NOT NULL
+            AND m.FormType IS NOT NULL
+            AND m.FormType LIKE (CASE WHEN @FormType = N'''' THEN m.FormType + N''%'' ELSE @FormType + N''%'' END)
+            AND (@PaymentType = N'''' OR m.PaymentType = @PaymentType
+                OR (@PaymentType = N''CitizenPay''
+                    AND REPLACE(REPLACE(REPLACE(LOWER(ISNULL(m.PaymentType, N'''')), N'' '', N''''), N''-'', N''''), N''_'', N'''')
+                        IN (N''citizenpay'', N''citizen'', N''cp'')))';
 
-    -- Now, and only now, the report's own filters.
-    SELECT *
-    INTO #mpu
-    FROM #mpuAll m
-    WHERE m.TransactionDateTime >= @FromDate
-        AND m.TransactionDateTime <= @ToDate
-        AND m.FormType IS NOT NULL
-        AND m.FormType LIKE (CASE WHEN @FormType = '' THEN m.FormType + '%' ELSE @FormType + '%' END)
-        AND (@PaymentType = ''
-            OR m.PaymentType = @PaymentType
-            OR (@PaymentType = 'CitizenPay'
-                AND REPLACE(REPLACE(REPLACE(LOWER(ISNULL(m.PaymentType, '')), ' ', ''), '-', ''), '_', '')
-                    IN ('citizenpay', 'citizen', 'cp')));
+    IF @candidateLimit IS NOT NULL
+    BEGIN
+        DECLARE @candidateSql nvarchar(max) = N'INSERT INTO #reportPayments(Id, TransactionId) SELECT TOP (@limit)'
+            + @selectPayments + N' ORDER BY ' + @ob + N' OPTION (RECOMPILE);';
+        EXEC sys.sp_executesql @candidateSql,
+            N'@FromDate datetime, @ToDate datetime, @FormType nvarchar(200), @PaymentType nvarchar(200), @limit int',
+            @FromDate, @ToDate, @FormType, @PaymentType, @candidateLimit;
+    END;
 
-    CREATE INDEX IX_mpu_TransactionId_rn ON #mpu(TransactionId, rn);
-    CREATE INDEX IX_mpu_Order ON #mpu(TransactionId, TransactionDateTime, Id);
+    WHILE 1 = 1
+    BEGIN
+        -- MPUPaymentTransaction has no foreign key to AccountTransaction: the only link is
+        -- the shared application id, one-to-many on both sides, so the voucher is found by
+        -- pairing the Nth successful card charge with the Nth payment record. Two rules keep
+        -- that pairing honest, and breaking either is what the 2026-09-17 ငွေစာရင်း complaint
+        -- ("MPU Report V3 မှာ ပြနေတဲ့ voucher no တွေက မှားနေပါတယ်") was reporting:
+        --
+        --   1. Both sequences must be numbered over the SAME universe the pairing assumes —
+        --      successful charges against payment vouchers — or the two ordinals mean
+        --      different things.
+        --   2. Neither may be numbered over the REPORT'S filtered rows. Numbering after the
+        --      date window made a row's voucher depend on the range the user picked: the same
+        --      charge read U01... over one week and U02... over two months (measured on PROD,
+        --      2025-02, 8 of 112 rows), and 5-7% of rows showed a voucher from a different
+        --      month entirely -- a February charge printing an April 2024 voucher.
+        --
+        -- So: pick the applications the filters select, number their WHOLE history, and only
+        -- then narrow to the rows the report shows.
+        IF @candidateLimit IS NOT NULL
+            INSERT INTO #ids(TransactionId) SELECT DISTINCT TransactionId FROM #reportPayments;
+        ELSE
+        BEGIN
+            INSERT INTO #ids(TransactionId)
+            SELECT DISTINCT m.TransactionId
+            FROM dbo.MPUPaymentTransaction m
+            WHERE m.TransactionDateTime >= @FromDate
+                AND m.TransactionDateTime <= @ToDate
+                AND m.ResponseCode = '00'
+                AND m.FormType IS NOT NULL
+                AND m.FormType LIKE (CASE WHEN @FormType = '' THEN m.FormType + '%' ELSE @FormType + '%' END)
+                AND (@PaymentType = ''
+                    OR m.PaymentType = @PaymentType
+                    OR (@PaymentType = 'CitizenPay'
+                        AND REPLACE(REPLACE(REPLACE(LOWER(ISNULL(m.PaymentType, '')), ' ', ''), '-', ''), '_', '')
+                            IN ('citizenpay', 'citizen', 'cp')));
 
-    -- The candidates are exactly the rows Account Summary itself can display: a payment
-    -- carrying a voucher (sp_AccountSummaryReport_pagination.sql:58). Anything else --
-    -- a provisional or non-payment record -- holds a voucher number this report must
-    -- never print, because Account Summary never will.
-    --
-    -- They are narrowed once more, to the payments that actually belong to a card charge.
-    -- An application's fees are not all paid by card, and a payment made at the counter
-    -- still creates an AccountTransaction with a voucher; left in, it takes an ordinal
-    -- and pushes every later charge onto the wrong voucher. Time separates the two
-    -- cleanly -- measured over 1,000 PROD rows for 2025-02:
-    --
-    --     voucher month == charge month (950 rows):  100.0% paid within 1 day, median 0.00
-    --     voucher month != charge month ( 50 rows):    0.0% paid within 1 day, median 42.3
-    --
-    -- so a payment more than @PairingToleranceDays from every one of the application's
-    -- charges is not a card payment, and is not a candidate.
-    SELECT
-        a.TransactionId,
-        a.VoucherNo,
-        a.TotalAmount,
-        a.PaymentDate,
-        ROW_NUMBER() OVER (
-            PARTITION BY a.TransactionId
-            ORDER BY a.CreatedDate, a.Id
-        ) AS rn
-    INTO #acc
-    FROM dbo.AccountTransaction a
-    WHERE a.IsPayment = 1
-        AND a.VoucherNo IS NOT NULL
-        AND EXISTS (SELECT 1 FROM #ids i WHERE i.TransactionId = a.TransactionId)
-        AND EXISTS (
-            SELECT 1
-            FROM #mpuAll m
-            WHERE m.TransactionId = a.TransactionId
-                AND m.TransactionDateTime IS NOT NULL
-                AND ABS(DATEDIFF(day, ISNULL(a.PaymentDate, a.CreatedDate), m.TransactionDateTime))
-                    <= @PairingToleranceDays);
+        END;
 
-    CREATE INDEX IX_acc_TransactionId_rn ON #acc(TransactionId, rn);
+        CREATE INDEX IX_ids_TransactionId ON #ids(TransactionId);
 
-    SELECT
-        m.Id,
-        m.Sakhan,
-        m.TransactionDateTime,
-        ISNULL((
-            SELECT TOP 1 p.CompanyName
-            FROM dbo.PaThaKa p
-            WHERE p.PaThaKaNo = m.PaThaKaNo
-               OR p.CompanyRegistrationNo = m.PaThaKaNo
-        ), '') AS CompanyName,
-        m.PaThaKaNo AS CompanyRegistrationNo,
-        m.ApplicationNo,
-        m.MerchantId,
-        m.AccountNo,
-        m.InvoiceNo,
-        m.ApprovalCode,
-        m.TransactionRefNo,
-        CONVERT(nvarchar(50), CONVERT(decimal(18, 2), ISNULL(TRY_CONVERT(decimal(18, 2),
-            CASE
-                WHEN LEN(ISNULL(m.TransactionAmount, '')) > 2 THEN LEFT(m.TransactionAmount, LEN(m.TransactionAmount) - 2) + '.' + RIGHT(m.TransactionAmount, 2)
-                WHEN LEN(ISNULL(m.TransactionAmount, '')) > 0 THEN '0.' + RIGHT('00' + m.TransactionAmount, 2)
-                ELSE '0'
-            END), 0))) AS TransactionAmount,
-        m.MOCAmount,
-        m.IMAmount,
-        CONVERT(nvarchar(50), ISNULL(TRY_CONVERT(decimal(18, 2),
-            CASE
-                WHEN LEN(ISNULL(m.TransactionAmount, '')) > 2 THEN LEFT(m.TransactionAmount, LEN(m.TransactionAmount) - 2) + '.' + RIGHT(m.TransactionAmount, 2)
-                WHEN LEN(ISNULL(m.TransactionAmount, '')) > 0 THEN '0.' + RIGHT('00' + m.TransactionAmount, 2)
-                ELSE '0'
-            END), 0)
-            - ISNULL(TRY_CONVERT(decimal(18, 2), m.MOCAmount), 0)
-            - ISNULL(TRY_CONVERT(decimal(18, 2), m.IMAmount), 0)) AS MPUAmount,
-        CONVERT(nvarchar(50), ISNULL(TRY_CONVERT(decimal(18, 2),
-            CASE
-                WHEN LEN(ISNULL(m.TransactionAmount, '')) > 2 THEN LEFT(m.TransactionAmount, LEN(m.TransactionAmount) - 2) + '.' + RIGHT(m.TransactionAmount, 2)
-                WHEN LEN(ISNULL(m.TransactionAmount, '')) > 0 THEN '0.' + RIGHT('00' + m.TransactionAmount, 2)
-                ELSE '0'
-            END), 0)
-            - ISNULL(TRY_CONVERT(decimal(18, 2), m.MOCAmount), 0)) AS AmountDiff,
-        m.FormType,
-        m.ApplyType,
-        a.VoucherNo,
-        a.TotalAmount,
-        a.PaymentDate,
-        m.TransactionId
-    INTO #rows
-    FROM #mpu m
-    INNER JOIN #acc a
-        ON m.TransactionId = a.TransactionId
-       AND m.rn = a.rn;
+        -- Every successful charge of those applications, whenever it happened. A failed
+        -- attempt creates no AccountTransaction, so it must not consume an ordinal.
+        SELECT
+            m.*,
+            ROW_NUMBER() OVER (
+                PARTITION BY m.TransactionId
+                ORDER BY m.TransactionDateTime, m.Id
+            ) AS rn
+        INTO #mpuAll
+        FROM dbo.MPUPaymentTransaction m
+        WHERE m.ResponseCode = '00'
+            AND EXISTS (SELECT 1 FROM #ids i WHERE i.TransactionId = m.TransactionId);
+
+        CREATE INDEX IX_mpuAll_TransactionId_rn ON #mpuAll(TransactionId, rn);
+
+        -- Now, and only now, the report's own filters.
+        SELECT *
+        INTO #mpu
+        FROM #mpuAll m
+        WHERE m.TransactionDateTime >= @FromDate
+            AND m.TransactionDateTime <= @ToDate
+            AND m.FormType IS NOT NULL
+            AND m.FormType LIKE (CASE WHEN @FormType = '' THEN m.FormType + '%' ELSE @FormType + '%' END)
+            AND (@PaymentType = ''
+                OR m.PaymentType = @PaymentType
+                OR (@PaymentType = 'CitizenPay'
+                    AND REPLACE(REPLACE(REPLACE(LOWER(ISNULL(m.PaymentType, '')), ' ', ''), '-', ''), '_', '')
+                        IN ('citizenpay', 'citizen', 'cp')))
+            AND (@candidateLimit IS NULL OR EXISTS (SELECT 1 FROM #reportPayments p WHERE p.Id = m.Id))
+        OPTION (RECOMPILE);
+
+        CREATE INDEX IX_mpu_TransactionId_rn ON #mpu(TransactionId, rn);
+        CREATE INDEX IX_mpu_Order ON #mpu(TransactionId, TransactionDateTime, Id);
+
+        -- The candidates are exactly the rows Account Summary itself can display: a payment
+        -- carrying a voucher (sp_AccountSummaryReport_pagination.sql:58). Anything else --
+        -- a provisional or non-payment record -- holds a voucher number this report must
+        -- never print, because Account Summary never will.
+        --
+        -- They are narrowed once more, to the payments that actually belong to a card charge.
+        -- An application's fees are not all paid by card, and a payment made at the counter
+        -- still creates an AccountTransaction with a voucher; left in, it takes an ordinal
+        -- and pushes every later charge onto the wrong voucher. Time separates the two
+        -- cleanly -- measured over 1,000 PROD rows for 2025-02:
+        --
+        --     voucher month == charge month (950 rows):  100.0% paid within 1 day, median 0.00
+        --     voucher month != charge month ( 50 rows):    0.0% paid within 1 day, median 42.3
+        --
+        -- so a payment more than @PairingToleranceDays from every one of the application's
+        -- charges is not a card payment, and is not a candidate.
+        SELECT
+            a.TransactionId,
+            a.VoucherNo,
+            a.TotalAmount,
+            a.PaymentDate,
+            ROW_NUMBER() OVER (
+                PARTITION BY a.TransactionId
+                ORDER BY a.CreatedDate, a.Id
+            ) AS rn
+        INTO #acc
+        FROM dbo.AccountTransaction a
+        WHERE a.IsPayment = 1
+            AND a.VoucherNo IS NOT NULL
+            AND EXISTS (SELECT 1 FROM #ids i WHERE i.TransactionId = a.TransactionId)
+            AND EXISTS (
+                SELECT 1
+                FROM #mpuAll m
+                WHERE m.TransactionId = a.TransactionId
+                    AND m.TransactionDateTime IS NOT NULL
+                    AND ABS(DATEDIFF(day, ISNULL(a.PaymentDate, a.CreatedDate), m.TransactionDateTime))
+                        <= @PairingToleranceDays);
+
+        CREATE INDEX IX_acc_TransactionId_rn ON #acc(TransactionId, rn);
+
+        SELECT
+            m.Id,
+            m.Sakhan,
+            m.TransactionDateTime,
+            ISNULL((
+                SELECT TOP 1 p.CompanyName
+                FROM dbo.PaThaKa p
+                WHERE p.PaThaKaNo = m.PaThaKaNo
+                   OR p.CompanyRegistrationNo = m.PaThaKaNo
+            ), '') AS CompanyName,
+            m.PaThaKaNo AS CompanyRegistrationNo,
+            m.ApplicationNo,
+            m.MerchantId,
+            m.AccountNo,
+            m.InvoiceNo,
+            m.ApprovalCode,
+            m.TransactionRefNo,
+            CONVERT(nvarchar(50), CONVERT(decimal(18, 2), ISNULL(TRY_CONVERT(decimal(18, 2),
+                CASE
+                    WHEN LEN(ISNULL(m.TransactionAmount, '')) > 2 THEN LEFT(m.TransactionAmount, LEN(m.TransactionAmount) - 2) + '.' + RIGHT(m.TransactionAmount, 2)
+                    WHEN LEN(ISNULL(m.TransactionAmount, '')) > 0 THEN '0.' + RIGHT('00' + m.TransactionAmount, 2)
+                    ELSE '0'
+                END), 0))) AS TransactionAmount,
+            m.MOCAmount,
+            m.IMAmount,
+            CONVERT(nvarchar(50), ISNULL(TRY_CONVERT(decimal(18, 2),
+                CASE
+                    WHEN LEN(ISNULL(m.TransactionAmount, '')) > 2 THEN LEFT(m.TransactionAmount, LEN(m.TransactionAmount) - 2) + '.' + RIGHT(m.TransactionAmount, 2)
+                    WHEN LEN(ISNULL(m.TransactionAmount, '')) > 0 THEN '0.' + RIGHT('00' + m.TransactionAmount, 2)
+                    ELSE '0'
+                END), 0)
+                - ISNULL(TRY_CONVERT(decimal(18, 2), m.MOCAmount), 0)
+                - ISNULL(TRY_CONVERT(decimal(18, 2), m.IMAmount), 0)) AS MPUAmount,
+            CONVERT(nvarchar(50), ISNULL(TRY_CONVERT(decimal(18, 2),
+                CASE
+                    WHEN LEN(ISNULL(m.TransactionAmount, '')) > 2 THEN LEFT(m.TransactionAmount, LEN(m.TransactionAmount) - 2) + '.' + RIGHT(m.TransactionAmount, 2)
+                    WHEN LEN(ISNULL(m.TransactionAmount, '')) > 0 THEN '0.' + RIGHT('00' + m.TransactionAmount, 2)
+                    ELSE '0'
+                END), 0)
+                - ISNULL(TRY_CONVERT(decimal(18, 2), m.MOCAmount), 0)) AS AmountDiff,
+            m.FormType,
+            m.ApplyType,
+            a.VoucherNo,
+            a.TotalAmount,
+            a.PaymentDate,
+            m.TransactionId
+        INTO #rows
+        FROM #mpu m
+        INNER JOIN #acc a
+            ON m.TransactionId = a.TransactionId
+           AND m.rn = a.rn;
+
+        -- If the prefix is exhausted without enough matched vouchers, run once
+        -- over the full range. A short candidate list already covers the range.
+        IF @candidateLimit IS NULL OR @@ROWCOUNT >= @needed
+            OR (SELECT COUNT(*) FROM #reportPayments) < @candidateLimit
+            BREAK;
+
+        SET @candidateLimit = NULL;
+        DROP TABLE #rows, #acc, #mpu, #mpuAll;
+        DROP INDEX IX_ids_TransactionId ON #ids;
+        TRUNCATE TABLE #ids;
+    END;
 
     CREATE INDEX IX_rows_Order ON #rows(TransactionId, TransactionDateTime, Id);
 

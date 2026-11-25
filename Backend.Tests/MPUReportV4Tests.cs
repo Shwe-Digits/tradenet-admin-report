@@ -106,6 +106,31 @@ public sealed class MPUReportV4Tests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Fast_page_fills_from_the_full_range_when_early_payments_lack_vouchers()
+    {
+        await using var db = Db();
+        await db.Database.ExecuteSqlRawAsync("""
+            WITH numbers AS (
+                SELECT TOP (100) ROW_NUMBER() OVER (ORDER BY object_id) AS n FROM sys.all_objects
+            )
+            INSERT dbo.MPUPaymentTransaction (Id,TransactionId,Sakhan,FormType,ResponseCode,TransactionDateTime,PaymentType)
+            SELECT 1000+n,CONVERT(varchar(36),1000+n),'Z','Import Licence','00','2026-11-16','MPU'
+            FROM numbers;
+            """);
+
+        var full = await Read(true, "", "", "Sakhan", 0, null, true);
+        var first = await Read(true, "", "", "Sakhan", 0, 1, false);
+        var second = await Read(true, "", "", "Sakhan", 1, 1, false);
+        Assert.Equal(4, full.Rows.Count);
+        Assert.Equal(full.Rows.Cast<DataRow>().Take(2).Select(row => row.Field<int>("Id")),
+            first.Rows.Cast<DataRow>().Select(row => row.Field<int>("Id")));
+        Assert.Equal(full.Rows.Cast<DataRow>().Skip(1).Take(2).Select(row => row.Field<int>("Id")),
+            second.Rows.Cast<DataRow>().Select(row => row.Field<int>("Id")));
+        Assert.All(first.Rows.Cast<DataRow>(), row => Assert.True(row.IsNull("TotalCount")));
+        Assert.Equal("V-NEW", full.Rows.Cast<DataRow>().Single(row => row.Field<int>("Id") == 2).Field<string>("VoucherNo"));
+    }
+
+    [Fact]
     public async Task Grid_and_streamed_Excel_include_both_numbers_with_V3_totals()
     {
         await using var db = Db();
