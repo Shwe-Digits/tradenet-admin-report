@@ -3,6 +3,32 @@
 This journal records which assignment was implemented on each branch and its actual
 merge/deployment state. Add the newest assignment first.
 
+## `fix/mpu-report-v4-performance`
+
+- Base: `main` at `559db48`. Implementation commit: `db8aa97`. Verified locally
+  and on production data through a connection-scoped temporary procedure. Push,
+  merge, and production deployment are pending.
+- The old first page paired full transaction histories and enriched up to 119,986
+  matched rows for the 30-day sample. The new fast path pairs only the first sorted
+  payment candidates. It still numbers the full history for each selected transaction
+  and retries over the full range if the candidates cannot fill the page. Exact
+  counts, exports, deeper pages and sorts that depend on voucher or derived fields
+  use the full range. The change is limited to the V4 SP and its regression test.
+- First-page SQL medians in production-data trials through 2026-11-24 were 455 to
+  187 ms for a day, 5,479 to 160 ms for a week, 8,820 to 228 ms for 30 days, and
+  24,635 to 258 ms for a year. A separate paired year comparison was 17,526 to
+  254 ms. Timings include SQL client overhead, without the web/API response path.
+  The full monthly count query still took 6.0–7.4 seconds on the candidate.
+- An earlier attempt to narrow and rejoin payment history made the full monthly
+  count run slower, so the final implementation keeps the original bulk joins.
+  All 12 before/after production comparisons matched all 23 fields and ordering,
+  including exact counts, complete samples of 494 and 1,582 rows, different sorts,
+  MPU/Citizen Pay filters and deep offsets. All 13 focused LocalDB and access tests
+  passed, including a sparse-prefix fallback with 100 unpaired payments.
+- Operational logs: `.deploy/mpu-v4-performance/`. Backend test log:
+  `artifacts/mpu-v4-performance-final-tests.log`. Production publication would be
+  a SQL-only update to `dbo.sp_MPUReport_V4_pagination`.
+
 ## `feature/mpu-report-v4`
 
 - Assignment date: 2026-11-20. Base: `main` at `8a3bbb6`. Implementation commit:
