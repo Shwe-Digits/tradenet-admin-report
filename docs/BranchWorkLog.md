@@ -3,6 +3,22 @@
 This journal records which assignment was implemented on each branch and its actual
 merge/deployment state. Add the newest assignment first.
 
+## `feature/licence-method-report-columns`
+
+- Implemented on 2026-11-28 from `main` at `be410f3`. The implementation commit
+  is `d9f345f`. The branch is local and awaits publication, merge, and deployment.
+- Added Method of Import or Method of Export after Licence Date on ten existing
+  reports. The scope covers the four Licence New reports, the two Import Licence
+  Pending reports, and the four standard Licence Voucher reports. The grid and
+  Excel layouts share the column, and a missing lookup keeps the licence row.
+- The frontend build and 24 focused frontend tests passed. The 1,705 selected
+  backend tests passed, including SQL Server LocalDB checks for method values,
+  missing lookups, border Individual Trading rows, and Excel column bindings.
+  Broader checks still report existing legacy config assertions and missing
+  Turndown Excel fixtures.
+- Apply `sp_NewReport_pagination.sql`, `sp_PendingReport_pagination.sql`, and
+  `sp_VoucherReport_pagination.sql` before publishing the updated application.
+
 ## `fix/mpu-report-v4-performance`
 
 - Base: `main` at `559db48`. Implementation commit: `db8aa97`. Verified locally
