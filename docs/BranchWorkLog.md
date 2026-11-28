@@ -6,7 +6,8 @@ merge/deployment state. Add the newest assignment first.
 ## `feature/licence-method-report-columns`
 
 - Implemented on 2026-11-28 from `main` at `be410f3`. The implementation commit
-  is `d9f345f`. The branch is local and awaits publication, merge, and deployment.
+  is `d9f345f`. Published the feature branch and fast-forward merged it to
+  `main`. Both remote branches were verified at release commit `253cedc`.
 - Added Method of Import or Method of Export after Licence Date on ten existing
   reports. The scope covers the four Licence New reports, the two Import Licence
   Pending reports, and the four standard Licence Voucher reports. The grid and
@@ -16,8 +17,21 @@ merge/deployment state. Add the newest assignment first.
   missing lookups, border Individual Trading rows, and Excel column bindings.
   Broader checks still report existing legacy config assertions and missing
   Turndown Excel fixtures.
-- Apply `sp_NewReport_pagination.sql`, `sp_PendingReport_pagination.sql`, and
-  `sp_VoucherReport_pagination.sql` before publishing the updated application.
+- Released on 2026-11-29. Installed `sp_NewReport_pagination.sql`,
+  `sp_PendingReport_pagination.sql`, and `sp_VoucherReport_pagination.sql` in one
+  transaction before publishing the app. Eighteen production-data samples
+  matched the previous fields and row order during rehearsal. The installed
+  procedures returned the new column through the application database account
+  in all 18 checks, with values on licence samples and blanks on permit samples.
+- Live backend `1.0.0+253cedc` and frontend `/assets/index-CwdHeSbG.js` matched
+  the build and returned HTTP 200. Three browser checks used sample API
+  responses and verified the method value and Excel request on Oversea Import
+  New, Border Import Pending, and Border Export Voucher.
+- The deployment wrapper stopped at an npm engine warning after the backend
+  copy. The frontend was built and published separately using the installed
+  dependencies. Procedure backups and release checks are in
+  `.deploy/licence-method-release/`. Site backups are in
+  `.deploy/pre-licence-method-deploy-20261129-004758/`.
 
 ## `fix/mpu-report-v4-performance`
 
