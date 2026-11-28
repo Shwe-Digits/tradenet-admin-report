@@ -49,6 +49,7 @@ public sealed class sp_NewReportResult
     public int? SakhanId { get; set; }
     public string? SakhanCode { get; set; }
     public string? SakhanName { get; set; }
+    public string? TradeMethod { get; set; }
 }
 
 public sealed class sp_NewReportRow
@@ -80,6 +81,7 @@ public sealed class sp_NewReportRow
     public int? SakhanId { get; set; }
     public string? SakhanCode { get; set; }
     public string? SakhanName { get; set; }
+    public string? TradeMethod { get; set; }
     public int? TotalCount { get; set; }
 
     public sp_NewReportResult ToResult() => new()
@@ -111,6 +113,7 @@ public sealed class sp_NewReportRow
         SakhanId = SakhanId,
         SakhanCode = SakhanCode,
         SakhanName = SakhanName,
+        TradeMethod = TradeMethod,
     };
 }
 

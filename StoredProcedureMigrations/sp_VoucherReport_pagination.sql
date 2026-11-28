@@ -38,7 +38,7 @@ BEGIN
     DECLARE @dir nvarchar(4) = CASE WHEN UPPER(ISNULL(@SortOrder,'ASC')) = 'DESC' THEN 'DESC' ELSE 'ASC' END;
 
     DECLARE @ob nvarchar(400);
-    IF @SortColumn IS NOT NULL AND @SortColumn IN (N'ApplicationNo', N'ApplicationDate', N'ApprovedUser', N'Date', N'sDate', N'SectionCode', N'ApplyType', N'OldLicenceNo', N'LicenceNo', N'LicenceDate', N'sLicenceDate', N'CompanyRegistrationNo', N'CompanyName', N'VoucherNo', N'VoucherDate', N'sVoucherDate', N'Amount', N'PaymentType', N'CommodityType', N'ExchangeRate', N'TotalCIF')
+    IF @SortColumn IS NOT NULL AND @SortColumn IN (N'TradeMethod', N'ApplicationNo', N'ApplicationDate', N'ApprovedUser', N'Date', N'sDate', N'SectionCode', N'ApplyType', N'OldLicenceNo', N'LicenceNo', N'LicenceDate', N'sLicenceDate', N'CompanyRegistrationNo', N'CompanyName', N'VoucherNo', N'VoucherDate', N'sVoucherDate', N'Amount', N'PaymentType', N'CommodityType', N'ExchangeRate', N'TotalCIF')
         SET @ob = QUOTENAME(@SortColumn) + N' ' + @dir
             + CASE WHEN @SortColumn = N'ApplicationNo' THEN N'' ELSE N', [ApplicationNo] ASC' END
             + CASE WHEN @SortColumn = N'LicenceNo' THEN N'' ELSE N', [LicenceNo] ASC' END;
@@ -98,6 +98,7 @@ CAST(ImportPermit.ExchangeRate AS decimal(38,6)) ExchangeRate,
 -- other branch casts. AS float made EF GetDecimal throw InvalidCastException (Double to
 -- Decimal), returning HTTP 500 for the whole Import Permit Voucher report (no data).
 CAST(ImportPermit.TotalCIF AS decimal(38,6)) TotalCIF,
+CAST(NULL AS nvarchar(200)) AS TradeMethod,
 ImportPermit.Id AS __k_Id
         FROM ImportPermit
 		INNER JOIN AccountTransaction ON ImportPermit.Id=AccountTransaction.TransactionId
@@ -173,6 +174,7 @@ PaymentType,
 ExportPermit.CommodityType,
 CAST(0 AS decimal(38,6)) ExchangeRate,
 CAST(0 AS decimal(38,6)) TotalCIF,
+CAST(NULL AS nvarchar(200)) AS TradeMethod,
 ExportPermit.Id AS __k_Id
         FROM ExportPermit
 		INNER JOIN AccountTransaction ON ExportPermit.Id=AccountTransaction.TransactionId
@@ -245,6 +247,7 @@ PaymentType,
 ExportLicence.CommodityType,
 CAST(NULL AS decimal(38,6)) ExchangeRate,
 CAST(NULL AS decimal(38,6)) TotalCIF,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = ExportLicence.ExportImportMethodId) AS TradeMethod,
 ExportLicence.Id AS __k_Id
         FROM ExportLicence
 		INNER JOIN AccountTransaction WITH (INDEX([IX_AccountTransaction_ExportLicenceVoucher])) ON ExportLicence.Id=AccountTransaction.TransactionId
@@ -341,6 +344,7 @@ CAST(NULL AS decimal(38,6)) TotalCIF,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = BorderExportLicence.ExportImportMethodId) AS TradeMethod,
 BorderExportLicence.Id AS __k_Id
         FROM BorderExportLicence
 		INNER JOIN AccountTransaction ON BorderExportLicence.Id=AccountTransaction.TransactionId
@@ -380,6 +384,7 @@ CAST(NULL AS decimal(38,6)) TotalCIF,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = BorderExportLicence.ExportImportMethodId) AS TradeMethod,
 BorderExportLicence.Id AS __k_Id
         FROM BorderExportLicence
 		INNER JOIN AccountTransaction ON BorderExportLicence.Id=AccountTransaction.TransactionId
@@ -462,6 +467,7 @@ CAST(BorderImportLicence.TotalCIF AS decimal(38,6)) TotalCIF,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = BorderImportLicence.ExportImportMethodId) AS TradeMethod,
 BorderImportLicence.Id AS __k_Id
         FROM BorderImportLicence
 		INNER JOIN AccountTransaction WITH (INDEX([IX_AccountTransaction_BorderImportLicenceVoucher])) ON BorderImportLicence.Id=AccountTransaction.TransactionId
@@ -503,6 +509,7 @@ CAST(BorderImportLicence.TotalCIF AS decimal(38,6)) TotalCIF,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = BorderImportLicence.ExportImportMethodId) AS TradeMethod,
 BorderImportLicence.Id AS __k_Id
         FROM BorderImportLicence
 		INNER JOIN AccountTransaction WITH (INDEX([IX_AccountTransaction_BorderImportLicenceVoucher])) ON BorderImportLicence.Id=AccountTransaction.TransactionId
@@ -584,6 +591,7 @@ CAST(NULL AS decimal(38,6)) TotalCIF,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+CAST(NULL AS nvarchar(200)) AS TradeMethod,
 BorderExportPermit.Id AS __k_Id
         FROM BorderExportPermit
 		INNER JOIN AccountTransaction ON BorderExportPermit.Id=AccountTransaction.TransactionId
@@ -658,6 +666,7 @@ CAST(BorderImportPermit.TotalCIF AS decimal(38,6)) TotalCIF,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+CAST(NULL AS nvarchar(200)) AS TradeMethod,
 BorderImportPermit.Id AS __k_Id
         FROM BorderImportPermit
 		INNER JOIN AccountTransaction ON BorderImportPermit.Id=AccountTransaction.TransactionId
@@ -719,6 +728,7 @@ PaymentType,
 ImportLicence.CommodityType,
 ImportLicence.ExchangeRate,
 CAST(ImportLicence.TotalCIF AS decimal(38,6)) TotalCIF,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = ImportLicence.ExportImportMethodId) AS TradeMethod,
 ImportLicence.Id AS __k_Id
         FROM ImportLicence
 		INNER JOIN AccountTransaction ON ImportLicence.Id=AccountTransaction.TransactionId

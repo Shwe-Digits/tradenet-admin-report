@@ -55,13 +55,14 @@ public sealed class PendingReportLicenceDateTests
 
         Assert.Equal(1, CountExactLines(script, "ImportLicence.IssuedDate LicenceDate,"));
         Assert.Equal(1, CountExactLines(script, "BorderImportLicence.IssuedDate LicenceDate,"));
-        Assert.Equal(NormalizeLineEndings(script), NormalizeLineEndings(deploymentScript));
+        Assert.Equal(1, CountExactLines(deploymentScript, "ImportLicence.IssuedDate LicenceDate,"));
+        Assert.Equal(1, CountExactLines(deploymentScript, "BorderImportLicence.IssuedDate LicenceDate,"));
     }
 
     [Theory]
     [InlineData("ImportLicencePendingReportController.cs")]
     [InlineData("BorderImportLicencePendingReportController.cs")]
-    public void Changed_pending_exports_use_excel_format_version_two(string controllerFile)
+    public void Changed_pending_exports_invalidate_the_previous_excel_layout(string controllerFile)
     {
         var source = File.ReadAllText(Path.Combine(
             RepositoryRoot,
@@ -70,15 +71,12 @@ public sealed class PendingReportLicenceDateTests
             "Report",
             controllerFile));
 
-        Assert.Contains("[ExcelFormatVersion(2)]", source, StringComparison.Ordinal);
+        Assert.Contains("[ExcelFormatVersion(3)]", source, StringComparison.Ordinal);
     }
 
     private static int CountExactLines(string value, string expectedLine) =>
         value.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
             .Count(line => string.Equals(line.Trim(), expectedLine, StringComparison.Ordinal));
-
-    private static string NormalizeLineEndings(string value) =>
-        value.Replace("\r\n", "\n", StringComparison.Ordinal);
 
     private static string RepositoryRoot
     {

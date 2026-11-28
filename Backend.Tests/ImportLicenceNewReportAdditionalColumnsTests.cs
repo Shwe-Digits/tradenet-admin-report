@@ -66,13 +66,13 @@ public sealed class ImportLicenceNewReportAdditionalColumnsTests
     }
 
     [Theory]
-    [InlineData("ImportLicenceNewReportNewReportController.cs", 3)]
+    [InlineData("ImportLicenceNewReportNewReportController.cs", 4)]
     [InlineData("ImportPermitNewReportNewReportController.cs", 2)]
-    [InlineData("ExportLicenceNewReportNewReportController.cs", 3)]
+    [InlineData("ExportLicenceNewReportNewReportController.cs", 4)]
     [InlineData("ExportPermitNewReportNewReportController.cs", 3)]
-    [InlineData("BorderImportLicenceNewReportNewReportController.cs", 2)]
+    [InlineData("BorderImportLicenceNewReportNewReportController.cs", 3)]
     [InlineData("BorderImportPermitNewReportNewReportController.cs", 3)]
-    [InlineData("BorderExportLicenceNewReportNewReportController.cs", 2)]
+    [InlineData("BorderExportLicenceNewReportNewReportController.cs", 3)]
     [InlineData("BorderExportPermitNewReportNewReportController.cs", 2)]
     public void All_application_excel_versions_invalidate_older_column_layouts(
         string controllerFile,

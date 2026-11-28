@@ -32,9 +32,10 @@ public sealed class sp_PendingReportResult
     public decimal Amount { get; set; }
     public string? CommodityType { get; set; }
     public string? HSCode { get; set; }
+    public string? TradeMethod { get; set; }
 }
 
-public sealed class sp_PendingReportRow
+public class sp_PendingReportRow
 {
     public string? Status { get; set; }
     public string? ApplyType { get; set; }
@@ -71,6 +72,18 @@ public sealed class sp_PendingReportRow
     };
 }
 
+public sealed class sp_LicencePendingReportRow : sp_PendingReportRow
+{
+    public string? TradeMethod { get; set; }
+
+    public sp_PendingReportResult ToLicenceResult()
+    {
+        var result = ToResult();
+        result.TradeMethod = TradeMethod;
+        return result;
+    }
+}
+
 public static class sp_PendingReport
 {
     private const string Pending = "Pending";
@@ -81,7 +94,7 @@ public static class sp_PendingReport
     /// wrapper over the untouched original). The LINQ <see cref="Query"/> below is retained
     /// for not-yet-converted sibling report families.
     /// </summary>
-    public static async Task<List<sp_PendingReportRow>> ExecuteAsync(
+    public static async Task<List<sp_LicencePendingReportRow>> ExecuteAsync(
         TradeNetDbContext db,
         sp_PendingReportRequest request,
         string? sortColumn = null,
@@ -94,7 +107,7 @@ public static class sp_PendingReport
             .ToListAsync();
     }
 
-    public static IQueryable<sp_PendingReportRow> ExecuteQueryable(
+    public static IQueryable<sp_LicencePendingReportRow> ExecuteQueryable(
         TradeNetDbContext db,
         sp_PendingReportRequest request,
         string? sortColumn = null,
@@ -123,7 +136,7 @@ public static class sp_PendingReport
             "EXEC dbo.sp_PendingReport_pagination @FromDate, @ToDate, @FormType, @ExportImportSectionId, " +
             "@SortColumn, @SortOrder, @PageIndex, @PageSize, @IncludeTotalCount";
 
-        return db.Database.SqlQueryRaw<sp_PendingReportRow>(sql, parameters);
+        return db.Database.SqlQueryRaw<sp_LicencePendingReportRow>(sql, parameters);
     }
 
     public static IQueryable<sp_PendingReportResult> Query(
@@ -310,7 +323,11 @@ public static class sp_PendingReport
                 AdditionalDescription = firstItemRow.Description,
                 Amount = amountRow.Amount ?? 0m,
                 CommodityType = licence.CommodityType,
-                HSCode = firstItemRow.Hscode
+                HSCode = firstItemRow.Hscode,
+                TradeMethod = db.ExportImportMethods
+                    .Where(method => method.Id == licence.ExportImportMethodId)
+                    .Select(method => method.Name)
+                    .FirstOrDefault()
             };
     }
 }

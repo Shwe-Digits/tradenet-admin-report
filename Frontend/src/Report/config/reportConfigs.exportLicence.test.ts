@@ -436,6 +436,8 @@ describe('Export Licence report configs', () => {
     ).toEqual([
       'Section',
       'LicenceNo',
+      'LicenceDate',
+      'TradeMethod',
       'CompanyRegistrationNo',
       'CompanyName',
       'CompanyAddress',

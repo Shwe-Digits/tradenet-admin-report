@@ -35,10 +35,16 @@ public sealed class VoucherDetailDatabase : IAsyncLifetime
         await db.Database.GetService<IRelationalDatabaseCreator>().CreateAsync();
         await db.Database.OpenConnectionAsync();
         await db.Database.ExecuteSqlRawAsync("""
-            CREATE TABLE dbo.PaThaKa (Id varchar(36) NOT NULL PRIMARY KEY,CompanyRegistrationNo nvarchar(50),CompanyName nvarchar(200));
-            CREATE TABLE dbo.IndividualTrading (Id varchar(36) NOT NULL PRIMARY KEY,TINNo nvarchar(50),Name nvarchar(200));
+            CREATE TABLE dbo.PaThaKa (Id varchar(36) NOT NULL PRIMARY KEY,CompanyRegistrationNo nvarchar(50),CompanyName nvarchar(200),
+                UnitLevel nvarchar(100),StreetNumberStreetName nvarchar(100),QuarterCityTownship nvarchar(100),
+                State nvarchar(100),Country nvarchar(100),PostalCode nvarchar(50));
+            CREATE TABLE dbo.IndividualTrading (Id varchar(36) NOT NULL PRIMARY KEY,TINNo nvarchar(50),Name nvarchar(200),
+                UnitLevel nvarchar(100),StreetNumberStreetName nvarchar(100),QuarterCityTownship nvarchar(100),
+                State nvarchar(100),Country nvarchar(100),PostalCode nvarchar(50));
             CREATE TABLE dbo.Users (Id int PRIMARY KEY,FullName nvarchar(200));
-            CREATE TABLE dbo.ExportImportSection (Id int PRIMARY KEY,Code nvarchar(20));
+            CREATE TABLE dbo.ExportImportSection (Id int PRIMARY KEY,Code nvarchar(20),Name nvarchar(100));
+            CREATE TABLE dbo.ExportImportMethod (Id int PRIMARY KEY,Name nvarchar(200));
+            CREATE TABLE dbo.HSCode (Id int PRIMARY KEY,Code nvarchar(20));
             CREATE TABLE dbo.Sakhan (Id int PRIMARY KEY,Code nvarchar(20),Name nvarchar(100));
             CREATE TABLE dbo.Currency (Id int PRIMARY KEY,Code nvarchar(20));
             CREATE TABLE dbo.AccountTransaction (Id varchar(36) NOT NULL PRIMARY KEY,TransactionId varchar(36),
@@ -49,21 +55,22 @@ public sealed class VoucherDetailDatabase : IAsyncLifetime
             CREATE TABLE dbo.AccountTitle (Id int PRIMARY KEY,Description nvarchar(max));
             CREATE INDEX IX_AccountTransaction_ExportLicenceVoucher ON dbo.AccountTransaction(TransactionId);
             CREATE INDEX IX_AccountTransaction_BorderImportLicenceVoucher ON dbo.AccountTransaction(TransactionId);
-            INSERT dbo.PaThaKa VALUES ('company','12345',N'Example Company');
-            INSERT dbo.IndividualTrading VALUES ('individual','TIN001',N'Individual Trader');
+            INSERT dbo.PaThaKa (Id,CompanyRegistrationNo,CompanyName) VALUES ('company','12345',N'Example Company');
+            INSERT dbo.IndividualTrading (Id,TINNo,Name) VALUES ('individual','TIN001',N'Individual Trader');
             INSERT dbo.Users VALUES (1,N'Approver');
-            INSERT dbo.ExportImportSection VALUES (1,'2'),(2,'3');
+            INSERT dbo.ExportImportSection VALUES (1,'2','Section 2'),(2,'3','Section 3');
+            INSERT dbo.ExportImportMethod VALUES (1,N'Import example'),(2,N'Export example');
             INSERT dbo.Sakhan VALUES (1,'MWD','Myawaddy'),(2,'MS','Muse');
             INSERT dbo.Currency VALUES (1,'USD'),(2,'CNY');
             INSERT dbo.AccountTitle VALUES (1,N'လိုင်စင်ကြေး'),(2,N'Service fee'),(3,N'Other fee');
             """);
-        foreach (var form in Families)
+        foreach (var form in Families.Append("Import Licence"))
         {
             var table = form.Replace(" ","");
             var number = (form.Contains("Import") ? "Import" : "Export") + (form.Contains("Permit") ? "PermitNo" : "LicenceNo");
             var border = form.StartsWith("Border");
             var individual = form is "Border Import Licence" or "Border Export Licence";
-            var exchange = form is "Import Permit" or "Border Import Permit" or "Border Import Licence";
+            var exchange = form is "Import Licence" or "Import Permit" or "Border Import Permit" or "Border Import Licence";
             // Identifiers below come only from the fixed Families list, never external input.
             var sql = $"""
                 CREATE TABLE dbo.{table} (Id varchar(36) NOT NULL PRIMARY KEY,ApplicationNo nvarchar(100),ApplicationDate datetime,
@@ -94,11 +101,34 @@ public sealed class VoucherDetailDatabase : IAsyncLifetime
                     INSERT dbo.AccountTransaction VALUES ('{table}-ind-tx','{table}-individual','{form}',9000,'IND001','2026-11-01','2026-11-01',1,'Cash');
                     INSERT dbo.AccountTransactionDetail VALUES ('{table}-ind-d','{table}-ind-tx',1,9000,1);
                     """);
+            var methodId = form.Contains("Import") ? 1 : 2;
+            var methodSchema = $"""
+                ALTER TABLE dbo.{table} ADD ExportImportMethodId int NULL,IssuedDate datetime,LastDate datetime,
+                    Remark nvarchar(max),auto nvarchar(50),quota nvarchar(50);
+                ALTER TABLE dbo.{table}Item ADD HSCodeId int,HSCode nvarchar(20),Description nvarchar(200);
+                """;
+            await db.Database.ExecuteSqlRawAsync(methodSchema);
+            var setMethods = $"""
+                UPDATE dbo.{table} SET
+                    ExportImportMethodId = CASE WHEN Id = '{table}-licence' THEN {methodId} END,
+                    IssuedDate = CreatedDate, auto = N'Auto', quota = N'';
+                """;
+            await db.Database.ExecuteSqlRawAsync(setMethods);
+            if (form is "Import Licence" or "Border Import Licence")
+            {
+                var pendingRows = $"""
+                    INSERT dbo.{table} (Id,ApplicationNo,ApplicationDate,PaThaKaId,ExportImportSectionId,ApplyType,Status,ExportImportMethodId)
+                    VALUES ('pending-with-method','PENDING-1','2026-11-01','company',1,'New','Pending',1),
+                        ('pending-unknown-method','PENDING-2','2026-11-01','company',1,'New','Reject',999);
+                    """;
+                await db.Database.ExecuteSqlRawAsync(pendingRows);
+            }
         }
         await db.Database.ExecuteSqlRawAsync("CREATE INDEX IX_BorderImportLicenceItem_VoucherReport ON dbo.BorderImportLicenceItem(BorderImportLicenceId)");
         foreach (var file in new[] {
             "Views/vw_ImportPermitItemTotalByCurrency.sql", "Views/vw_ExportPermitItemTotalByCurrency.sql",
-            "sp_VoucherReport_pagination.sql", "sp_VoucherDetailReport_pagination.sql"
+            "Views/vw_ImportLicenceItemTotalByCurrency.sql", "sp_NewReport_pagination.sql",
+            "sp_PendingReport_pagination.sql", "sp_VoucherReport_pagination.sql", "sp_VoucherDetailReport_pagination.sql"
         })
         {
             var sql = File.ReadAllText(Path.Combine(Root,"StoredProcedureMigrations",file));
@@ -143,6 +173,60 @@ public sealed class AllVoucherDetailReportTests : IClassFixture<VoucherDetailDat
     private static object? Value(object row,string name) => row.GetType().GetProperty(name)!.GetValue(row);
     private static List<object> Rows(object page) => ((IEnumerable)Value(page,"Data")!).Cast<object>().ToList();
 
+    [Theory]
+    [InlineData("Import Licence", "Import example")]
+    [InlineData("Border Import Licence", "Import example")]
+    [InlineData("Export Licence", "Export example")]
+    [InlineData("Border Export Licence", "Export example")]
+    [InlineData("Import Permit", null)]
+    public async Task Shared_new_and_voucher_queries_return_the_method_for_licences(string form, string? method)
+    {
+        await using var db = _fixture.CreateDb();
+        var from = new DateTime(2026, 11, 1);
+        var to = new DateTime(2026, 11, 3);
+
+        var newRows = await sp_NewReport.ExecuteAsync(db,
+            new() { FormType = form, FromDate = from, ToDate = to },
+            sortColumn: "TradeMethod", sortOrder: "DESC");
+        Assert.NotEmpty(newRows);
+        Assert.Equal(method, newRows[0].ToResult().TradeMethod);
+        if (form.StartsWith("Border", StringComparison.Ordinal))
+        {
+            Assert.Equal(2, newRows.Count);
+            Assert.Null(newRows[1].ToResult().TradeMethod);
+        }
+
+        var voucherRows = await sp_VoucherReport.ExecuteAsync(db,
+            new() { FormType = form, FromDate = from, ToDate = to, ApplyType = "New" },
+            sortColumn: "TradeMethod", sortOrder: "DESC");
+        Assert.NotEmpty(voucherRows);
+        Assert.Equal(method, voucherRows[0].ToResult().TradeMethod);
+        if (form.StartsWith("Border", StringComparison.Ordinal))
+            Assert.Null(Assert.Single(voucherRows, row => row.VoucherNo == "IND001").ToResult().TradeMethod);
+    }
+
+    [Theory]
+    [InlineData("Import Licence")]
+    [InlineData("Border Import Licence")]
+    public async Task Pending_queries_keep_rows_with_unknown_methods(string form)
+    {
+        await using var db = _fixture.CreateDb();
+        var request = new sp_PendingReportRequest
+        {
+            FormType = form,
+            FromDate = new DateTime(2026, 11, 1),
+            ToDate = new DateTime(2026, 11, 3),
+        };
+
+        var rows = form == "Import Licence"
+            ? (await sp_PendingReport.ExecuteAsync(db, request, "TradeMethod", "DESC"))
+                .Select(row => row.ToLicenceResult()).ToList()
+            : await sp_PendingReport.Query(db, request).OrderByDescending(row => row.TradeMethod).ToListAsync();
+
+        Assert.Equal(new[] { "PENDING-1", "PENDING-2" }, rows.Select(row => row.ApplicationNo));
+        Assert.Equal(new[] { "Import example", null }, rows.Select(row => row.TradeMethod));
+    }
+
     [Theory, MemberData(nameof(Families))]
     public async Task Detail_rows_preserve_all_original_voucher_fields_and_split_each_fee(string form)
     {
@@ -161,7 +245,8 @@ public sealed class AllVoucherDetailReportTests : IClassFixture<VoucherDetailDat
         foreach (var row in rows)
         {
             var voucher=Assert.Single(original,old=>old.VoucherNo==(string?)Value(row,"VoucherNo")).ToResult();
-            foreach (var property in typeof(sp_VoucherReportResult).GetProperties().Where(p=>p.Name!="Amount"))
+            foreach (var property in typeof(sp_VoucherReportResult).GetProperties()
+                .Where(p => p.Name != "Amount" && p.Name != nameof(sp_VoucherReportResult.TradeMethod)))
                 Assert.Equal(property.GetValue(voucher),Value(row,property.Name));
             Assert.False(string.IsNullOrWhiteSpace((string?)Value(row,"Description")));
         }

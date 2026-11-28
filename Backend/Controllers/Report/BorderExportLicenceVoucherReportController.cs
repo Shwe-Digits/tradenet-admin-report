@@ -20,7 +20,7 @@ namespace Backend.Controllers.Report
     [Route("api/[controller]")]
     // v2: the "Total Amount" column and the footer moved from the licence item (goods) value to
     // the voucher Amount, matching BorderVoucherReport.rdlc:1399/1521.
-    [ExcelFormatVersion(2)]
+    [ExcelFormatVersion(3)]
     public class BorderExportLicenceVoucherReportController
         : ControllerBase, IStreamingExcelReport, IExcelFooterTotalsProvider
     {

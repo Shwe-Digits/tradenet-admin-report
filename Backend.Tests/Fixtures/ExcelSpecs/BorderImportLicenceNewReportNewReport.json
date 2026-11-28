@@ -33,6 +33,11 @@
       "dateFormat": "DD/MM/YYYY"
     },
     {
+      "key": "TradeMethod",
+      "dataIndex": "tradeMethod",
+      "title": "Method of Import"
+    },
+    {
       "key": "CompanyRegistrationNo",
       "dataIndex": "companyRegistrationNo",
       "title": "Company Registration No"

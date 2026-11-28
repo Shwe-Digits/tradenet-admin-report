@@ -19,6 +19,7 @@ describe('Import Licence report configs', () => {
       'Section',
       'Licence No',
       'Licence Date',
+      'Method of Import',
       'Company Registration No',
       'Company Name',
       'Company Address',

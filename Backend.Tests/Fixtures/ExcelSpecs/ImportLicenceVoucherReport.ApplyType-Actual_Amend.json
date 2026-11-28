@@ -42,6 +42,11 @@
       "title": "Actual Amendment Date"
     },
     {
+      "key": "TradeMethod",
+      "dataIndex": "tradeMethod",
+      "title": "Method of Import"
+    },
+    {
       "key": "CompanyRegistrationNo",
       "dataIndex": "companyRegistrationNo",
       "title": "Company Registration No"

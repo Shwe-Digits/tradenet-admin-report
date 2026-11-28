@@ -397,7 +397,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 10
+      "columnCount": 11
     },
     {
       "configKey": "BorderExportLicenceTotalValueLicencesReport",
@@ -532,7 +532,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 12
+      "columnCount": 13
     },
     {
       "configKey": "BorderExportLicenceVoucherReport",
@@ -547,7 +547,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 12
+      "columnCount": 13
     },
     {
       "configKey": "BorderExportLicenceVoucherReport",
@@ -562,7 +562,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 12
+      "columnCount": 13
     },
     {
       "configKey": "BorderExportLicenceVoucherReport",
@@ -577,7 +577,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 12
+      "columnCount": 13
     },
     {
       "configKey": "BorderExportLicenceVoucherReport",
@@ -592,7 +592,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 12
+      "columnCount": 13
     },
     {
       "configKey": "BorderExportLicenceVoucherReport",
@@ -607,7 +607,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 11
+      "columnCount": 12
     },
     {
       "configKey": "BorderExportLicenceVoucherReport",
@@ -622,7 +622,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 11
+      "columnCount": 12
     },
     {
       "configKey": "BorderExportPermitActualAmendmentReport",
@@ -1237,7 +1237,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 10
+      "columnCount": 11
     },
     {
       "configKey": "BorderImportLicencePendingReport",
@@ -1252,7 +1252,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 13
+      "columnCount": 14
     },
     {
       "configKey": "BorderImportLicenceTotalValueLicencesReport",
@@ -1372,7 +1372,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 17
+      "columnCount": 18
     },
     {
       "configKey": "BorderImportLicenceVoucherReport",
@@ -1387,7 +1387,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 17
+      "columnCount": 18
     },
     {
       "configKey": "BorderImportLicenceVoucherReport",
@@ -1402,7 +1402,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 17
+      "columnCount": 18
     },
     {
       "configKey": "BorderImportLicenceVoucherReport",
@@ -1417,7 +1417,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 17
+      "columnCount": 18
     },
     {
       "configKey": "BorderImportLicenceVoucherReport",
@@ -1432,7 +1432,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 16
+      "columnCount": 17
     },
     {
       "configKey": "BorderImportLicenceVoucherReport",
@@ -1447,7 +1447,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 16
+      "columnCount": 17
     },
     {
       "configKey": "BorderImportPermitActualAmendmentReport",
@@ -2152,7 +2152,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 12
+      "columnCount": 13
     },
     {
       "configKey": "ExportLicenceTotalValueLicencesReport",
@@ -2272,7 +2272,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 14
+      "columnCount": 15
     },
     {
       "configKey": "ExportLicenceVoucherReport",
@@ -2287,7 +2287,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 14
+      "columnCount": 15
     },
     {
       "configKey": "ExportLicenceVoucherReport",
@@ -2302,7 +2302,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 14
+      "columnCount": 15
     },
     {
       "configKey": "ExportLicenceVoucherReport",
@@ -2317,7 +2317,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 14
+      "columnCount": 15
     },
     {
       "configKey": "ExportLicenceVoucherReport",
@@ -2332,7 +2332,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 13
+      "columnCount": 14
     },
     {
       "configKey": "ExportLicenceVoucherReport",
@@ -2347,7 +2347,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 13
+      "columnCount": 14
     },
     {
       "configKey": "ExportPermitActualAmendmentReport",
@@ -2932,7 +2932,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 12
+      "columnCount": 13
     },
     {
       "configKey": "ImportLicencePendingReport",
@@ -2947,7 +2947,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 13
+      "columnCount": 14
     },
     {
       "configKey": "ImportLicenceTotalValueLicencesReport",
@@ -3067,7 +3067,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 16
+      "columnCount": 17
     },
     {
       "configKey": "ImportLicenceVoucherReport",
@@ -3082,7 +3082,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 16
+      "columnCount": 17
     },
     {
       "configKey": "ImportLicenceVoucherReport",
@@ -3097,7 +3097,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 16
+      "columnCount": 17
     },
     {
       "configKey": "ImportLicenceVoucherReport",
@@ -3112,7 +3112,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 16
+      "columnCount": 17
     },
     {
       "configKey": "ImportLicenceVoucherReport",
@@ -3127,7 +3127,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 15
+      "columnCount": 16
     },
     {
       "configKey": "ImportLicenceVoucherReport",
@@ -3142,7 +3142,7 @@
       "isBespokePage": false,
       "isComposite": false,
       "hasExcelButton": true,
-      "columnCount": 15
+      "columnCount": 16
     },
     {
       "configKey": "ImportPermitActualAmendmentReport",

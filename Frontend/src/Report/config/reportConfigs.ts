@@ -14630,4 +14630,20 @@ reportConfigs.MPUReportV4 = {
 };
 
 reportConfigs.ApplicationNumberReport = applicationNumberReportConfig;
+for (const [family, reports, title] of [
+  ['ImportLicence', ['NewReportNewReport', 'PendingReport', 'VoucherReport'], 'Method of Import'],
+  ['BorderImportLicence', ['NewReportNewReport', 'PendingReport', 'VoucherReport'], 'Method of Import'],
+  ['ExportLicence', ['NewReportNewReport', 'VoucherReport'], 'Method of Export'],
+  ['BorderExportLicence', ['NewReportNewReport', 'VoucherReport'], 'Method of Export'],
+] as const) {
+  for (const report of reports) {
+    const config = reportConfigs[family + report];
+    config.columns = config.columns.flatMap(column =>
+      column.key === 'LicenceDate'
+        ? [column, { key: 'TradeMethod', dataIndex: 'tradeMethod', title }]
+        : [column]
+    );
+  }
+}
+
 export const reportConfigList = Object.values(reportConfigs);

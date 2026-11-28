@@ -45,6 +45,11 @@
       "title": "Extension Date"
     },
     {
+      "key": "TradeMethod",
+      "dataIndex": "tradeMethod",
+      "title": "Method of Export"
+    },
+    {
       "key": "CompanyRegistrationNo",
       "dataIndex": "companyRegistrationNo",
       "title": "Company Registration No"

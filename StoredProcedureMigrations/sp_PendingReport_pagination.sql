@@ -20,7 +20,7 @@ BEGIN
     DECLARE @dir nvarchar(4) = CASE WHEN UPPER(ISNULL(@SortOrder,'ASC')) = 'DESC' THEN 'DESC' ELSE 'ASC' END;
 
     DECLARE @ob nvarchar(400);
-    IF @SortColumn IS NOT NULL AND @SortColumn IN (N'Status', N'ApplyType', N'ApplicationDate', N'LicenceDate', N'ApplicationNo', N'SectionCode', N'SectionName', N'CompanyRegistrationNo', N'CompanyName', N'CommodityType')
+    IF @SortColumn IS NOT NULL AND @SortColumn IN (N'TradeMethod', N'Status', N'ApplyType', N'ApplicationDate', N'LicenceDate', N'ApplicationNo', N'SectionCode', N'SectionName', N'CompanyRegistrationNo', N'CompanyName', N'CommodityType')
         SET @ob = QUOTENAME(@SortColumn) + N' ' + @dir
             + CASE WHEN @SortColumn = N'ApplicationDate' THEN N'' ELSE N', [ApplicationDate] ASC' END
             + CASE WHEN @SortColumn = N'ApplicationNo' THEN N'' ELSE N', [ApplicationNo] ASC' END;
@@ -63,6 +63,7 @@ section.Name SectionName,
 PaThaKa.CompanyRegistrationNo,
 PaThaKa.CompanyName,
 BorderImportLicence.CommodityType,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = BorderImportLicence.ExportImportMethodId) AS TradeMethod,
 BorderImportLicence.Id AS __k_Id
             FROM BorderImportLicence
 		INNER JOIN PaThaKa ON BorderImportLicence.PaThaKaId = PaThaKa.Id
@@ -115,6 +116,7 @@ section.Name SectionName,
 PaThaKa.CompanyRegistrationNo,
 PaThaKa.CompanyName,
 ImportLicence.CommodityType,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = ImportLicence.ExportImportMethodId) AS TradeMethod,
 ImportLicence.Id AS __k_Id
         FROM ImportLicence
 		INNER JOIN PaThaKa ON ImportLicence.PaThaKaId = PaThaKa.Id

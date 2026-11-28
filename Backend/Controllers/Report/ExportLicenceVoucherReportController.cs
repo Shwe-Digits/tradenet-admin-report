@@ -22,7 +22,7 @@ namespace Backend.Controllers.Report
     // VoucherReport.rdlc:1883 does, so the sheet's column set changed.
     // v3: the export now carries the Total Amount footer. The job cache keys on the request
     // payload + this version, so an unchanged filter set would keep serving the footer-less .xlsx.
-    [ExcelFormatVersion(3)]
+    [ExcelFormatVersion(4)]
     public class ExportLicenceVoucherReportController : ControllerBase, IStreamingExcelReport
     {
         private const string ReportKey = "ExportLicenceVoucherReport";

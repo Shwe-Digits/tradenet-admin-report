@@ -24,7 +24,7 @@ BEGIN
     DECLARE @dir nvarchar(4) = CASE WHEN UPPER(ISNULL(@SortOrder,'ASC')) = 'DESC' THEN 'DESC' ELSE 'ASC' END;
 
     DECLARE @ob nvarchar(400);
-    IF @SortColumn IS NOT NULL AND @SortColumn IN (N'Date', N'SectionCode', N'SectionName', N'OldLicenceNo', N'LicenceNo', N'sDate', N'ApplicationNo', N'ApplicationDate', N'LicenceDate', N'Remark', N'CompanyRegistrationNo', N'CompanyName', N'UnitLevel', N'StreetNumberStreetName', N'QuarterCityTownship', N'State', N'Country', N'PostalCode', N'auto', N'quota', N'CommodityType')
+    IF @SortColumn IS NOT NULL AND @SortColumn IN (N'TradeMethod', N'Date', N'SectionCode', N'SectionName', N'OldLicenceNo', N'LicenceNo', N'sDate', N'ApplicationNo', N'ApplicationDate', N'LicenceDate', N'Remark', N'CompanyRegistrationNo', N'CompanyName', N'UnitLevel', N'StreetNumberStreetName', N'QuarterCityTownship', N'State', N'Country', N'PostalCode', N'auto', N'quota', N'CommodityType')
     BEGIN
         SET @ob = QUOTENAME(@SortColumn) + N' ' + @dir;
         IF @SortColumn <> N'Date' SET @ob += N', [Date] ASC';
@@ -82,6 +82,7 @@ PostalCode,
 CAST(NULL AS nvarchar(50)) auto,
 CAST(NULL AS nvarchar(50)) quota,
 ImportPermit.CommodityType,
+CAST(NULL AS nvarchar(200)) AS TradeMethod,
 ImportPermit.Id AS __k_Id
         FROM ImportPermit
 		INNER JOIN PaThaKa ON ImportPermit.PaThaKaId = PaThaKa.Id
@@ -139,6 +140,7 @@ PostalCode,
 CAST(NULL AS nvarchar(50)) auto,
 CAST(NULL AS nvarchar(50)) quota,
 ExportPermit.CommodityType,
+CAST(NULL AS nvarchar(200)) AS TradeMethod,
 ExportPermit.Id AS __k_Id
         FROM ExportPermit
 		INNER JOIN PaThaKa ON ExportPermit.PaThaKaId = PaThaKa.Id
@@ -196,6 +198,7 @@ PostalCode,
 ExportLicence.auto,
 CAST(N'''' AS nvarchar(50)) quota,
 ExportLicence.CommodityType,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = ExportLicence.ExportImportMethodId) AS TradeMethod,
 ExportLicence.Id AS __k_Id
         FROM ExportLicence
 		INNER JOIN PaThaKa ON ExportLicence.PaThaKaId = PaThaKa.Id
@@ -273,6 +276,7 @@ CAST(NULL AS nvarchar(max)) CommodityType,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = BorderExportLicence.ExportImportMethodId) AS TradeMethod,
 BorderExportLicence.Id AS __k_Id
         FROM BorderExportLicence
 		INNER JOIN PaThaKa ON BorderExportLicence.PaThaKaId = PaThaKa.Id
@@ -309,6 +313,7 @@ CAST(NULL AS nvarchar(max)) CommodityType,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = BorderExportLicence.ExportImportMethodId) AS TradeMethod,
 BorderExportLicence.Id AS __k_Id
         FROM BorderExportLicence
 		INNER JOIN IndividualTrading ON BorderExportLicence.IndividualTradingId = IndividualTrading.Id
@@ -355,6 +360,7 @@ BorderExportLicence.Id AS __k_Id
         pg.SakhanId,
         pg.SakhanCode,
         pg.SakhanName,
+        pg.TradeMethod,
         pg.__k_Id,
         (SELECT top 1 currency.Code FROM BorderImportLicenceItem
 		INNER JOIN Currency currency ON BorderImportLicenceItem.CurrencyId = currency.Id
@@ -391,6 +397,7 @@ CAST(NULL AS nvarchar(max)) CommodityType,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = BorderImportLicence.ExportImportMethodId) AS TradeMethod,
 BorderImportLicence.Id AS __k_Id
         FROM BorderImportLicence
 		INNER JOIN PaThaKa ON BorderImportLicence.PaThaKaId = PaThaKa.Id
@@ -428,6 +435,7 @@ CAST(NULL AS nvarchar(max)) CommodityType,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = BorderImportLicence.ExportImportMethodId) AS TradeMethod,
 BorderImportLicence.Id AS __k_Id
         FROM BorderImportLicence
 		INNER JOIN IndividualTrading ON BorderImportLicence.IndividualTradingId = IndividualTrading.Id
@@ -495,6 +503,7 @@ BorderExportPermit.CommodityType,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+CAST(NULL AS nvarchar(200)) AS TradeMethod,
 BorderExportPermit.Id AS __k_Id
         FROM BorderExportPermit
 		INNER JOIN PaThaKa ON BorderExportPermit.PaThaKaId = PaThaKa.Id
@@ -562,6 +571,7 @@ CAST(NULL AS nvarchar(max)) CommodityType,
 sakhan.Id SakhanId,
 sakhan.Code SakhanCode,
 sakhan.Name SakhanName,
+CAST(NULL AS nvarchar(200)) AS TradeMethod,
 BorderImportPermit.Id AS __k_Id
         FROM BorderImportPermit
 		INNER JOIN PaThaKa ON BorderImportPermit.PaThaKaId = PaThaKa.Id
@@ -635,6 +645,7 @@ PostalCode,
 ImportLicence.auto,
 ImportLicence.quota,
 ImportLicence.CommodityType,
+(SELECT method.Name FROM dbo.ExportImportMethod AS method WHERE method.Id = ImportLicence.ExportImportMethodId) AS TradeMethod,
 ImportLicence.Id AS __k_Id
         FROM ImportLicence
 		INNER JOIN PaThaKa ON ImportLicence.PaThaKaId = PaThaKa.Id

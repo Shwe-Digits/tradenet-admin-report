@@ -18,7 +18,7 @@ namespace Backend.Controllers.Report
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    [ExcelFormatVersion(2)]
+    [ExcelFormatVersion(3)]
     public class ImportLicencePendingReportController : ControllerBase, IStreamingExcelReport
     {
         private const string ReportKey = "ImportLicencePendingReport";
@@ -57,7 +57,7 @@ namespace Backend.Controllers.Report
             var rows = await sp_PendingReport.ExecuteAsync(
                 _context, procedureRequest!, sortColumn, sortOrder, pageIndex, pageSize, request.IncludeTotalCount);
 
-            var data = rows.Select(row => row.ToResult()).ToList();
+            var data = rows.Select(row => row.ToLicenceResult()).ToList();
 
             var result = request.IncludeTotalCount
                 ? ApiResult<sp_PendingReportResult>.CreatePageFromRows(
@@ -105,7 +105,7 @@ namespace Backend.Controllers.Report
             await foreach (var chunk in sp_PendingReport.ExecuteQueryable(_context, procedureRequest!)
                 .AsAsyncEnumerable().ChunkAsync(chunkSize, cancellationToken))
             {
-                sink.Append(chunk.Select(row => row.ToResult()).ToList());
+                sink.Append(chunk.Select(row => row.ToLicenceResult()).ToList());
             }
         }
 
